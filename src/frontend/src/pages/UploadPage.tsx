@@ -51,6 +51,10 @@ export default function UploadPage() {
     );
   }
 
+  if (profileLoading || !isFetched) {
+    return null;
+  }
+
   return (
     <>
       <ProfileSetupModal open={showProfileSetup} />

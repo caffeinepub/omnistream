@@ -1,5 +1,5 @@
 import { Link, useNavigate } from '@tanstack/react-router';
-import { Home, Film, Upload, User, Radio } from 'lucide-react';
+import { Sparkles, Film, Upload, User, Radio } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import AuthControls from './AuthControls';
@@ -26,8 +26,8 @@ export default function NavBar() {
             <nav className="hidden md:flex items-center gap-1">
               <Button variant="ghost" size="sm" asChild>
                 <Link to="/" className="gap-2">
-                  <Home className="h-4 w-4" />
-                  Home
+                  <Sparkles className="h-4 w-4" />
+                  For You
                 </Link>
               </Button>
               <Button variant="ghost" size="sm" asChild>

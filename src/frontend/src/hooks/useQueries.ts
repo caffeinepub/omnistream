@@ -90,7 +90,9 @@ export function useUploadMedia() {
 
   return useMutation({
     mutationFn: async ({ title, mediaType, file, duration, onProgress }: UploadMediaParams) => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) {
+        throw new Error('You must be signed in to upload media');
+      }
 
       const arrayBuffer = await file.arrayBuffer();
       const bytes = new Uint8Array(arrayBuffer);
@@ -120,7 +122,29 @@ export function useUploadMedia() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['videos'] });
       queryClient.invalidateQueries({ queryKey: ['shorts'] });
+      queryClient.invalidateQueries({ queryKey: ['forYou'] });
     },
+  });
+}
+
+// Combined For You feed
+export function useGetForYouFeed() {
+  const { actor, isFetching } = useActor();
+
+  return useQuery<PublicMediaMeta[]>({
+    queryKey: ['forYou'],
+    queryFn: async () => {
+      if (!actor) return [];
+      const [videos, shorts] = await Promise.all([
+        actor.getAllVideos(),
+        actor.getAllShorts(),
+      ]);
+      // Combine and sort by recency (newest first)
+      return [...videos, ...shorts].sort((a, b) => 
+        Number(b.createdAt - a.createdAt)
+      );
+    },
+    enabled: !!actor && !isFetching,
   });
 }
 

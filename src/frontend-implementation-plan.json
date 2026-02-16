@@ -1,104 +1,95 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Signed-in floating action menu, clock-style viewer timer, Shorts branding, and ≤5s Live refresh",
+  "title": "OmniStream frontend hardening: Watch-page timer visibility, mainnet hash-routing robustness, and backend-unavailable UX",
   "requirements": [
     {
-      "id": "REQ-13",
-      "summary": "Add a signed-in-only floating “+” button with an action menu that navigates to Upload Video, Upload Short, or Go Live flows.",
+      "id": "REQ-23",
+      "summary": "Make the Watch page’s Viewer Timer clearly visible and usable on mobile/desktop (including deep links), without breaking pause-on-zero behavior.",
       "acceptanceCriteria": [
-        "When the user is not authenticated, the floating + button is not visible.",
-        "When the user is authenticated, a circular floating + button is visible at bottom-right on all main routes (Home, Shorts, Live, Watch, Upload).",
-        "Clicking/tapping the + button opens a menu with exactly: Upload Video, Upload Short, Go Live.",
-        "Choosing Upload Video opens the existing upload flow pre-selected for long-form video.",
-        "Choosing Upload Short opens the existing upload flow pre-selected for short.",
-        "Choosing Go Live navigates to the existing Live page and opens the start-live flow (or focuses the existing Go Live action).",
-        "All user-facing labels are in English."
+        "Opening any existing media in the Watch page displays the Viewer Timer card without requiring scrolling on desktop layouts (unless the viewport is extremely small).",
+        "On mobile, the Viewer Timer is discoverable and not hidden behind other UI elements (e.g., it appears below the player/metadata or via a clearly labeled control).",
+        "The Viewer Timer can be started and stopped, and it counts down as expected.",
+        "When the timer reaches zero, the video pauses (existing behavior preserved)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/FloatingActionButton.tsx",
+          "path": "frontend/src/pages/WatchPage.tsx",
+          "operation": "modify",
+          "description": "Adjust the Watch page responsive layout so the Viewer Timer is reliably discoverable on mobile (e.g., a clearly labeled show/hide control and/or placing it below the player/metadata) and prominently visible on desktop (e.g., right column with sticky positioning and appropriate top offset). Preserve existing deep-link behavior and keep ViewerTimer wired to pause the player on completion."
+        },
+        {
+          "path": "frontend/src/components/ViewerTimer.tsx",
+          "operation": "modify",
+          "description": "Harden ViewerTimer UI ergonomics for common screen sizes (mobile/desktop): ensure readable sizing, spacing, and button/input usability in constrained widths; keep English copy; preserve start/stop and countdown logic and onTimerEnd callback behavior."
+        }
+      ]
+    },
+    {
+      "id": "REQ-24",
+      "summary": "Harden the SPA boot + hash-routing behavior so the app loads at the correct icp0.io root URL and deep links without blank screens.",
+      "acceptanceCriteria": [
+        "A fresh mainnet deployment produces a working, publicly accessible HTTPS URL in the form https://<canister-id>.icp0.io that loads the OmniStream app.",
+        "The app loads successfully at the root URL (/) and does not require manual URL modifications to render the UI.",
+        "Deep links using the app’s hash routing (e.g., https://<canister-id>.icp0.io/#/watch/<title>) open the correct page directly without blank screens."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Add a lightweight hash-router normalization on initial load (e.g., if no hash is present, ensure the router starts at the intended root route) to prevent blank screens when opening the deployed canister root URL. Keep hash-based routing (do not switch to server-dependent routing)."
+        },
+        {
+          "path": "frontend/index.html",
+          "operation": "modify",
+          "description": "Harden the deployed-site entry HTML for IC assets hosting compatibility (e.g., ensure base/path assumptions do not break when served from https://<canister-id>.icp0.io and when opening deep links). Keep all user-facing text in English."
+        }
+      ]
+    },
+    {
+      "id": "REQ-25",
+      "summary": "Update repo-local mainnet deployment documentation to clearly explain the correct public frontend canister URL and troubleshoot “Canister ID Not Resolved”.",
+      "acceptanceCriteria": [
+        "The deployment guide clearly instructs how to find the correct frontend assets canister URL after `dfx deploy --network ic`.",
+        "The guide includes at least one correct example URL format for the app root and one for a deep link using hash routing (e.g., `/#/watch/...`).",
+        "The guide includes a short troubleshooting note for the specific error text “Canister ID Not Resolved” with concrete checks (e.g., malformed URL, missing canister ID, wrong domain)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/docs/ic-mainnet-deployment.md",
+          "operation": "modify",
+          "description": "Rewrite/complete the mainnet deployment guide to explicitly: (1) identify the public website as the frontend assets canister URL, (2) explain how to obtain/copy it after `dfx deploy --network ic`, (3) provide correct examples for root and hash deep links (e.g., https://<canister-id>.icp0.io and https://<canister-id>.icp0.io/#/watch/<title>), and (4) include an English troubleshooting section for the exact error text “Canister ID Not Resolved” with concrete checks (malformed URL, missing/incorrect canister ID, wrong domain such as icp0.io vs other)."
+        }
+      ]
+    },
+    {
+      "id": "REQ-26",
+      "summary": "Add a clear, user-facing frontend error state when the backend canister cannot be reached or the actor cannot be created/used.",
+      "acceptanceCriteria": [
+        "If the frontend cannot create/use the backend actor or a key query fails due to network/canister connectivity, the UI displays a clear error message in English (not just a console error).",
+        "The error state provides a minimal actionable hint (e.g., reload, verify the URL is the deployed icp0.io link) without exposing internal stack traces.",
+        "Normal behavior is unchanged when the backend is reachable."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/hooks/useActor.ts",
+          "operation": "modify",
+          "description": "Expose actor initialization failure state (e.g., an error field and/or a boolean like isActorUnavailable) so the UI can render a user-facing service-unavailable message when actor creation/initialization fails."
+        },
+        {
+          "path": "frontend/src/components/BackendUnavailableBanner.tsx",
           "operation": "create",
-          "description": "Create a fixed bottom-right circular “+” button that is only rendered when the user is authenticated (via useInternetIdentity). Implement a small in-place menu with exactly three English actions (Upload Video, Upload Short, Go Live) and use TanStack Router navigation to route into existing flows. Use shadcn-ui primitives (e.g., Button/Card or similar) to match styling. Verify the component's usage instructions before implementing."
+          "description": "Create a reusable, user-facing banner/card that explains (in English) the service is temporarily unavailable when the backend cannot be reached, and includes minimal actionable hints (reload, verify the URL is the correct https://<canister-id>.icp0.io link). Compose existing UI components (do not edit files under frontend/src/components/ui or other immutable paths)."
         },
         {
           "path": "frontend/src/components/AppLayout.tsx",
           "operation": "modify",
-          "description": "Wire the new FloatingActionButton into the global layout so it appears on all main routes while keeping it hidden for guests. Ensure fixed positioning does not overlap essential UI and respects z-index above page content. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/pages/UploadPage.tsx",
-          "operation": "modify",
-          "description": "Read a URL parameter (e.g., mediaType=video|short) and pass it down to the existing UploadForm so the upload flow opens pre-selected for long-form video or short based on the FloatingActionButton selection. Keep all user-facing text in English. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/components/UploadForm.tsx",
-          "operation": "modify",
-          "description": "Add support for an initial/preselected media type provided by UploadPage (e.g., via a prop) so the radio selection defaults correctly for Upload Video vs Upload Short. Maintain current behavior when no preselection is provided. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/pages/LivePage.tsx",
-          "operation": "modify",
-          "description": "Support navigation-triggered opening of the existing start-live UI (e.g., via a URL parameter like startLive=1): auto-open the start form when present and focus the title input so the user can immediately start a live session. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/utils/urlParams.ts",
-          "operation": "modify",
-          "description": "Reuse/extend existing URL parameter utilities if needed to support reading the Upload mediaType preselection and the Live startLive trigger consistently across query/hash routing. Verify the component's usage instructions before implementing."
-        }
-      ]
-    },
-    {
-      "id": "REQ-14",
-      "summary": "Replace Watch-page viewer timer minutes/seconds inputs with clock-style From/To time selection and compute countdown duration from the range.",
-      "acceptanceCriteria": [
-        "Viewer timer UI provides two clock-style inputs (From and To) for selecting times (e.g., using time pickers or hour/minute selectors).",
-        "Starting the timer computes a positive duration based on the selected range; if the range is invalid (e.g., To not after From), show an English validation message and do not start.",
-        "While active, the timer displays remaining time and provides a stop/cancel action.",
-        "When the timer reaches zero, the existing onTimerEnd behavior triggers and the video pauses as before."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/ViewerTimer.tsx",
-          "operation": "modify",
-          "description": "Update the timer UI to use two clock-style time inputs (From and To) and compute the countdown duration from the selected range. Add English validation messaging for invalid ranges, preserve the existing countdown/stop behavior, and continue calling onTimerEnd exactly when reaching zero. Verify the component's usage instructions before implementing."
+          "description": "Wire the backend-unavailable UI into the shared layout so users see a clear message across pages when the backend actor is unavailable, while keeping normal layout unchanged when connectivity is healthy."
         },
         {
           "path": "frontend/src/pages/WatchPage.tsx",
           "operation": "modify",
-          "description": "Confirm WatchPage continues to pass the same onTimerEnd behavior into ViewerTimer so that the video pauses when the timer reaches zero, with no behavioral regressions after the ViewerTimer UI change. Verify the component's usage instructions before implementing."
-        }
-      ]
-    },
-    {
-      "id": "REQ-15",
-      "summary": "Add prominent Shorts-specific branding text in the Shorts page header indicating users can watch Shorts.",
-      "acceptanceCriteria": [
-        "The Shorts page header includes a prominent “Shorts” branding element (e.g., badge/lockup) in addition to the page title.",
-        "The branding element includes English text that indicates watching Shorts (e.g., subtitle/tagline) without changing app functionality.",
-        "No backend changes are required for this branding element."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/pages/ShortsPage.tsx",
-          "operation": "modify",
-          "description": "Enhance the Shorts header area with a clear, prominent text-based branding element that says “Shorts” and includes an English watch-oriented line (e.g., a tagline such as 'Watch Shorts'). Keep functionality unchanged and avoid introducing new images. Verify the component's usage instructions before implementing."
-        }
-      ]
-    },
-    {
-      "id": "REQ-16",
-      "summary": "Poll/refetch active live sessions while Live page is open with an interval of 5 seconds or less.",
-      "acceptanceCriteria": [
-        "While the Live page is open, the list of active live sessions is automatically refreshed on an interval of ≤ 5 seconds.",
-        "Starting or ending a live session becomes visible to another user on the Live page within 5 seconds (assuming normal network conditions).",
-        "This refresh behavior does not require real-time sockets/websockets and uses the existing query/actor APIs."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/hooks/useQueries.ts",
-          "operation": "modify",
-          "description": "Update the live sessions query hook used by LivePage (useGetAllActiveLiveSessions) to automatically refetch/poll on an interval of 5 seconds or less while mounted, using React Query options (e.g., refetchInterval). Verify the component's usage instructions before implementing."
+          "description": "Differentiate backend-unavailable failures from genuine 'media not found' states: when media loading fails due to actor/connectivity issues, show the new user-facing service-unavailable message instead of (or before) 'Video not found', without exposing stack traces."
         }
       ]
     }

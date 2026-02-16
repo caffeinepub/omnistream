@@ -12,6 +12,7 @@ export default function AuthControls() {
 
   const handleAuth = async () => {
     if (isAuthenticated) {
+      // Clear all cached data on logout
       await clear();
       queryClient.clear();
     } else {
@@ -19,9 +20,18 @@ export default function AuthControls() {
         await login();
       } catch (error: any) {
         console.error('Login error:', error);
+        
+        // Handle the case where user is already authenticated
+        // This can happen after redeployment or cache issues
         if (error.message === 'User is already authenticated') {
+          // Force logout and retry
           await clear();
-          setTimeout(() => login(), 300);
+          queryClient.clear();
+          
+          // Retry login after a short delay
+          setTimeout(() => {
+            login();
+          }, 300);
         }
       }
     }

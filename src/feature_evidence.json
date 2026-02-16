@@ -2,14 +2,54 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-add-a-signed-in-only-floating-action-button-fixed-to-the-bottom-right-of-the-app-that-opens-a-small-menu-with-three-actions-upload-video-upload-short-and-go-live-selecting-an-action-must-navigate-the-user-to-the-correct-existing-page-flow-to-complete-that-action",
-      "featureTitle": "Add a signed-in-only floating “+” action button fixed to the bottom-right of the app that opens a small menu with three actions: “Upload Video”, “Upload Short”, and “Go Live”. Selecting an action must navigate the user to the correct existing page/flow to complete that action.",
+      "featureId": "feature-fix-the-watch-page-so-the-viewer-timer-ui-is-clearly-visible-and-usable-for-all-users-on-common-screen-sizes-mobile-desktop-including-when-the-watch-page-is-reached-via-deep-links",
+      "featureTitle": "Fix the Watch page so the Viewer Timer UI is clearly visible and usable for all users on common screen sizes (mobile + desktop), including when the Watch page is reached via deep links.",
+      "files": [
+        "frontend/src/components/ViewerTimer.tsx",
+        "frontend/src/pages/WatchPage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-23"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-fix-and-harden-the-deployed-site-access-path-so-users-do-not-encounter-the-gateway-error-canister-id-not-resolved-when-opening-the-correct-icp0-io-url-for-the-deployed-omnistream-frontend-assets-canister",
+      "featureTitle": "Fix and harden the deployed-site access path so users do not encounter the gateway error “Canister ID Not Resolved” when opening the correct icp0.io URL for the deployed OmniStream frontend assets canister.",
+      "files": [
+        "frontend/index.html",
+        "frontend/src/App.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-24"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-a-user-facing-error-state-in-the-frontend-for-when-the-app-cannot-reach-the-backend-canister-or-cannot-create-use-the-actor-so-the-ui-shows-a-clear-english-message-describing-that-the-service-is-temporarily-unavailable-instead-of-failing-silently",
+      "featureTitle": "Add a user-facing error state in the frontend for when the app cannot reach the backend canister (or cannot create/use the actor), so the UI shows a clear English message describing that the service is temporarily unavailable instead of failing silently.",
       "files": [
         "frontend/src/components/AppLayout.tsx",
-        "frontend/src/components/FloatingActionButton.tsx",
-        "frontend/src/components/UploadForm.tsx",
-        "frontend/src/pages/LivePage.tsx",
-        "frontend/src/pages/UploadPage.tsx"
+        "frontend/src/components/BackendUnavailableBanner.tsx",
+        "frontend/src/pages/WatchPage.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -21,67 +61,7 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-13"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-update-the-watch-page-viewer-timer-ui-to-use-a-simple-clock-style-time-range-selector-from-time-and-to-time-instead-of-raw-minutes-seconds-inputs-the-timer-must-compute-the-countdown-duration-from-the-selected-range-and-still-pause-the-video-automatically-when-it-reaches-zero",
-      "featureTitle": "Update the Watch-page viewer timer UI to use a simple clock-style time-range selector (“from” time and “to” time) instead of raw minutes/seconds inputs. The timer must compute the countdown duration from the selected range and still pause the video automatically when it reaches zero.",
-      "files": [
-        "frontend/src/components/ViewerTimer.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "blob-storage@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-14"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-add-a-clear-shorts-specific-branding-element-that-says-shorts-and-visually-indicates-users-can-watch-shorts-on-the-shorts-page-header-area-text-based-no-new-image-required-unless-necessary",
-      "featureTitle": "Add a clear Shorts-specific branding element that says “Shorts” and visually indicates users can watch Shorts on the Shorts page header area (text-based; no new image required unless necessary).",
-      "files": [
-        "frontend/src/pages/ShortsPage.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "blob-storage@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-15"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-ensure-the-live-sessions-browsing-experience-updates-with-a-maximum-refresh-delay-of-5-seconds-by-polling-refetching-active-live-sessions-at-an-interval-of-5-seconds-or-less-while-the-live-page-is-open",
-      "featureTitle": "Ensure the Live sessions browsing experience updates with a maximum refresh delay of 5 seconds by polling/refetching active live sessions at an interval of 5 seconds or less while the Live page is open.",
-      "files": [
-        "frontend/src/hooks/useQueries.ts"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "blob-storage@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-16"
+        "REQ-26"
       ],
       "confidence": "high"
     }

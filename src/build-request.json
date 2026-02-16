@@ -1,99 +1,117 @@
 {
   "kind": "build_request",
-  "title": "Add signed-in floating + action button, clock-style viewer timer, Shorts branding, and ≤5s live list refresh",
-  "priority": "normal",
+  "title": "Rebuild OmniStream and fix mainnet access + Watch-page Viewer Timer visibility",
+  "priority": "high",
   "requirements": [
     {
-      "id": "REQ-13",
-      "text": "Add a signed-in-only floating “+” action button fixed to the bottom-right of the app that opens a small menu with three actions: “Upload Video”, “Upload Short”, and “Go Live”. Selecting an action must navigate the user to the correct existing page/flow to complete that action.",
+      "id": "REQ-23",
+      "text": "Fix the Watch page so the Viewer Timer UI is clearly visible and usable for all users on common screen sizes (mobile + desktop), including when the Watch page is reached via deep links.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-user-last"
+          "recent-13",
+          "recent-11"
         ],
         "quotes": [
-          "Build ot now and the plus can make u post video short and go live"
+          "Build it again",
+          "Re code i can't see the timer thing"
         ]
       },
       "acceptanceCriteria": [
-        "When the user is not authenticated, the floating + button is not visible.",
-        "When the user is authenticated, a circular floating + button is visible at bottom-right on all main routes (Home, Shorts, Live, Watch, Upload).",
-        "Clicking/tapping the + button opens a menu with exactly: Upload Video, Upload Short, Go Live.",
-        "Choosing Upload Video opens the existing upload flow pre-selected for long-form video.",
-        "Choosing Upload Short opens the existing upload flow pre-selected for short.",
-        "Choosing Go Live navigates to the existing Live page and opens the start-live flow (or focuses the existing Go Live action).",
-        "All user-facing labels are in English."
+        "Opening any existing media in the Watch page displays the Viewer Timer card without requiring scrolling on desktop layouts (unless the viewport is extremely small).",
+        "On mobile, the Viewer Timer is discoverable and not hidden behind other UI elements (e.g., it appears below the player/metadata or via a clearly labeled control).",
+        "The Viewer Timer can be started and stopped, and it counts down as expected.",
+        "When the timer reaches zero, the video pauses (existing behavior preserved)."
       ]
     },
     {
-      "id": "REQ-14",
-      "text": "Update the Watch-page viewer timer UI to use a simple clock-style time-range selector (“from” time and “to” time) instead of raw minutes/seconds inputs. The timer must compute the countdown duration from the selected range and still pause the video automatically when it reaches zero.",
-      "target": "frontend",
+      "id": "REQ-24",
+      "text": "Fix and harden the deployed-site access path so users do not encounter the gateway error “Canister ID Not Resolved” when opening the correct icp0.io URL for the deployed OmniStream frontend assets canister.",
+      "target": "both",
       "source": {
         "messageIds": [
-          "msg-user-timer"
+          "recent-8",
+          "recent-9"
         ],
         "quotes": [
-          "the timer has a clock simple to set this time to this time"
+          "It says Canister ID Not Resolved",
+          "That's what I use https //xxxxx.icp0.io"
         ]
       },
       "acceptanceCriteria": [
-        "Viewer timer UI provides two clock-style inputs (From and To) for selecting times (e.g., using time pickers or hour/minute selectors).",
-        "Starting the timer computes a positive duration based on the selected range; if the range is invalid (e.g., To not after From), show an English validation message and do not start.",
-        "While active, the timer displays remaining time and provides a stop/cancel action.",
-        "When the timer reaches zero, the existing onTimerEnd behavior triggers and the video pauses as before."
+        "A fresh mainnet deployment produces a working, publicly accessible HTTPS URL in the form https://<canister-id>.icp0.io that loads the OmniStream app.",
+        "The app loads successfully at the root URL (/) and does not require manual URL modifications to render the UI.",
+        "Deep links using the app’s hash routing (e.g., https://<canister-id>.icp0.io/#/watch/<title>) open the correct page directly without blank screens."
       ]
     },
     {
-      "id": "REQ-15",
-      "text": "Add a clear Shorts-specific branding element that says “Shorts” and visually indicates users can watch Shorts on the Shorts page header area (text-based; no new image required unless necessary).",
+      "id": "REQ-25",
+      "text": "Update the repo-local mainnet deployment documentation to explicitly explain which deployed canister URL must be used for the public website, how to obtain it after deployment, and what a correct URL looks like (including hash-routing examples). Use English for all user-facing text.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-user-shorts-logo"
+          "recent-2",
+          "recent-8",
+          "recent-13"
         ],
         "quotes": [
-          "And a logo that says shorts and u can watch shorts"
+          "Please paste the URL that appeared in the deploy message.",
+          "It says Canister ID Not Resolved",
+          "Build it again"
         ]
       },
       "acceptanceCriteria": [
-        "The Shorts page header includes a prominent “Shorts” branding element (e.g., badge/lockup) in addition to the page title.",
-        "The branding element includes English text that indicates watching Shorts (e.g., subtitle/tagline) without changing app functionality.",
-        "No backend changes are required for this branding element."
+        "The deployment guide clearly instructs how to find the correct frontend assets canister URL after `dfx deploy --network ic`.",
+        "The guide includes at least one correct example URL format for the app root and one for a deep link using hash routing (e.g., `/#/watch/...`).",
+        "The guide includes a short troubleshooting note for the specific error text “Canister ID Not Resolved” with concrete checks (e.g., malformed URL, missing canister ID, wrong domain)."
       ]
     },
     {
-      "id": "REQ-16",
-      "text": "Ensure the Live sessions browsing experience updates with a maximum refresh delay of 5 seconds by polling/refetching active live sessions at an interval of 5 seconds or less while the Live page is open.",
+      "id": "REQ-26",
+      "text": "Add a user-facing error state in the frontend for when the app cannot reach the backend canister (or cannot create/use the actor), so the UI shows a clear English message describing that the service is temporarily unavailable instead of failing silently.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-user-last"
+          "recent-7",
+          "recent-8",
+          "recent-13"
         ],
         "quotes": [
-          "and the delay is no longer then 5 sec"
+          "All those dont work",
+          "It says Canister ID Not Resolved",
+          "Build it again"
         ]
       },
       "acceptanceCriteria": [
-        "While the Live page is open, the list of active live sessions is automatically refreshed on an interval of ≤ 5 seconds.",
-        "Starting or ending a live session becomes visible to another user on the Live page within 5 seconds (assuming normal network conditions).",
-        "This refresh behavior does not require real-time sockets/websockets and uses the existing query/actor APIs."
+        "If the frontend cannot create/use the backend actor or a key query fails due to network/canister connectivity, the UI displays a clear error message in English (not just a console error).",
+        "The error state provides a minimal actionable hint (e.g., reload, verify the URL is the deployed icp0.io link) without exposing internal stack traces.",
+        "Normal behavior is unchanged when the backend is reachable."
       ]
     }
   ],
   "constraints": [
-    "Backend must remain a single Motoko actor (all logic in backend/main.mo).",
-    "Do not edit files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or anything under frontend/src/components/ui; compose them instead.",
+    "Backend must remain a single Motoko actor in backend/main.mo; do not introduce additional backend services.",
+    "Do not edit files under frontend/src/components/ui or any other frontend immutablePaths; compose them instead.",
     "Use English for any user-facing text.",
-    "Respect the existing “Go Live” feature as metadata-only; do not introduce unsupported external streaming infrastructure."
+    "Keep hash-based routing compatibility for Internet Computer assets canister hosting (do not switch to server-dependent routing)."
   ],
   "nonGoals": [
-    "Implement real-time live video streaming with end-to-end latency ≤ 5 seconds (beyond metadata-only MVP).",
-    "Add guest upload and moderator approval workflows (not requested in the final user instruction).",
-    "Introduce third-party auth providers beyond Internet Identity."
+    "Implementing custom domain setup (DNS) changes for ommistream.com / www.ommistream.com without the exact deployed canister URL provided by the user.",
+    "Adding new product features beyond fixing visibility/accessibility issues and deployment accessibility.",
+    "Integrating third-party analytics, SEO tooling, or external hosting/CDNs."
   ],
   "imageRequirements": {
     "required": [],
     "edits": []
+  },
+  "userProfileUpdate": {
+    "goalsToAdd": [],
+    "goalsToRemove": [],
+    "preferencesToAdd": [],
+    "preferencesToRemove": [],
+    "miscToAdd": [],
+    "miscToRemove": [],
+    "fieldsToSet": {},
+    "fieldsToDelete": []
   }
 }

@@ -1,19 +1,29 @@
 import { useRef } from 'react';
-import { useParams, Link } from '@tanstack/react-router';
+import { useParams, Link, useNavigate } from '@tanstack/react-router';
 import { useGetMediaByTitle } from '../hooks/useQueries';
+import { useActor } from '../hooks/useActor';
 import VideoPlayer, { VideoPlayerRef } from '../components/VideoPlayer';
 import ViewerTimer from '../components/ViewerTimer';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Loader2, Calendar, Clock } from 'lucide-react';
+import { ArrowLeft, Loader2, Calendar, Clock, Upload } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export default function WatchPage() {
   const { title } = useParams({ from: '/watch/$title' });
+  const navigate = useNavigate();
+  const { actor } = useActor();
   const { data: media, isLoading, error } = useGetMediaByTitle(title);
   const playerRef = useRef<VideoPlayerRef>(null);
 
   const handleTimerEnd = () => {
     playerRef.current?.pause();
+  };
+
+  const handleUploadClick = () => {
+    if (media) {
+      const mediaType = media.mediaType === 'video' ? 'video' : 'short';
+      navigate({ to: '/upload', search: { mediaType } });
+    }
   };
 
   const formatDate = (timestamp: bigint) => {
@@ -45,7 +55,10 @@ export default function WatchPage() {
     );
   }
 
+  // Differentiate backend unavailable from media not found
   if (error || !media) {
+    const isBackendError = !actor || (error && (error.message?.includes('Actor not available') || error.message?.includes('actor')));
+    
     return (
       <div className="max-w-4xl mx-auto space-y-4">
         <Button variant="ghost" asChild>
@@ -56,7 +69,10 @@ export default function WatchPage() {
         </Button>
         <Alert variant="destructive">
           <AlertDescription>
-            Video not found. It may have been removed or the link is incorrect.
+            {isBackendError 
+              ? 'Unable to load video due to a connection issue. Please check your network and try reloading the page.'
+              : 'Video not found. It may have been removed or the link is incorrect.'
+            }
           </AlertDescription>
         </Alert>
       </div>
@@ -65,12 +81,18 @@ export default function WatchPage() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
-      <Button variant="ghost" asChild>
-        <Link to="/" className="gap-2">
-          <ArrowLeft className="h-4 w-4" />
-          Back
-        </Link>
-      </Button>
+      <div className="flex items-center justify-between">
+        <Button variant="ghost" asChild>
+          <Link to="/" className="gap-2">
+            <ArrowLeft className="h-4 w-4" />
+            Back
+          </Link>
+        </Button>
+        <Button onClick={handleUploadClick} variant="outline" className="gap-2">
+          <Upload className="h-4 w-4" />
+          Upload {media.mediaType === 'video' ? 'Video' : 'Short'}
+        </Button>
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-4">
@@ -95,10 +117,18 @@ export default function WatchPage() {
               </div>
             </div>
           </div>
+
+          {/* Mobile timer - shown below video on small screens */}
+          <div className="lg:hidden">
+            <ViewerTimer onTimerEnd={handleTimerEnd} />
+          </div>
         </div>
 
-        <div className="lg:col-span-1">
-          <ViewerTimer onTimerEnd={handleTimerEnd} />
+        {/* Desktop timer - sticky sidebar on large screens */}
+        <div className="hidden lg:block lg:col-span-1">
+          <div className="sticky top-4">
+            <ViewerTimer onTimerEnd={handleTimerEnd} />
+          </div>
         </div>
       </div>
     </div>

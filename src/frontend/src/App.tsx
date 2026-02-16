@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { RouterProvider, createRouter, createRootRoute, createRoute, Outlet } from '@tanstack/react-router';
+import { RouterProvider, createRouter, createRootRoute, createRoute, Outlet, createHashHistory } from '@tanstack/react-router';
 import { ThemeProvider } from 'next-themes';
 import SplashScreen from './components/SplashScreen';
 import AppLayout from './components/AppLayout';
@@ -67,7 +67,13 @@ const routeTree = rootRoute.addChildren([
   liveDetailsRoute,
 ]);
 
-const router = createRouter({ routeTree });
+// Use hash-based routing for IC compatibility (no server-side routing support)
+const hashHistory = createHashHistory();
+
+const router = createRouter({ 
+  routeTree,
+  history: hashHistory,
+});
 
 declare module '@tanstack/react-router' {
   interface Register {
@@ -85,6 +91,20 @@ export default function App() {
 
     return () => clearTimeout(timer);
   }, []);
+
+  // Normalize hash routing on initial load to prevent blank screens
+  useEffect(() => {
+    if (!showSplash) {
+      const hash = window.location.hash;
+      // If no hash or just '#', ensure router starts at root
+      if (!hash || hash === '#' || hash === '#/') {
+        // Router will handle this automatically, but we ensure the hash is present
+        if (!hash) {
+          window.location.hash = '#/';
+        }
+      }
+    }
+  }, [showSplash]);
 
   if (showSplash) {
     return <SplashScreen />;
