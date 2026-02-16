@@ -1,4 +1,4 @@
-import { useState, useRef, ChangeEvent } from 'react';
+import { useState, useRef, ChangeEvent, useEffect } from 'react';
 import { useUploadMedia } from '../hooks/useQueries';
 import { MediaType } from '../backend';
 import { Button } from '@/components/ui/button';
@@ -12,16 +12,23 @@ import { Progress } from '@/components/ui/progress';
 
 interface UploadFormProps {
   onSuccess: (title: string) => void;
+  initialMediaType?: 'video' | 'short';
 }
 
-export default function UploadForm({ onSuccess }: UploadFormProps) {
+export default function UploadForm({ onSuccess, initialMediaType }: UploadFormProps) {
   const [title, setTitle] = useState('');
-  const [mediaType, setMediaType] = useState<'video' | 'short'>('video');
+  const [mediaType, setMediaType] = useState<'video' | 'short'>(initialMediaType || 'video');
   const [file, setFile] = useState<File | null>(null);
   const [duration, setDuration] = useState<number | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const videoRef = useRef<HTMLVideoElement>(null);
   const uploadMutation = useUploadMedia();
+
+  useEffect(() => {
+    if (initialMediaType) {
+      setMediaType(initialMediaType);
+    }
+  }, [initialMediaType]);
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];

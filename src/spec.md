@@ -1,12 +1,12 @@
 # Specification
 
 ## Summary
-**Goal:** Make guest-mode limitations explicit, display OmniStream Discord community info, and add a metadata-only “Go Live” MVP for authenticated users.
+**Goal:** Improve key browsing/creation UX by adding a signed-in-only floating action menu, a clock-style viewer timer on Watch, clearer Shorts branding, and faster Live list updates.
 
 **Planned changes:**
-- Add always-visible Discord community text in the UI showing server name “ommistream” and contact “scottiscool”, without adding Discord integration or implying an official link when no URL is provided.
-- Add guest-mode messaging when unauthenticated (e.g., “Browsing as a guest”) and clarify on upload/post surfaces that signing in is required to upload/post.
-- Add a new Live/Go Live navigation entry and pages to browse live sessions (public), view live session details (public), start a live session (authenticated), and end a live session (authenticated, creator-only).
-- Add backend canister methods to create, end, list, and fetch live-session metadata with access control enforcing that only authenticated creators can create/end their own sessions.
+- Add a signed-in-only floating “+” button fixed bottom-right across main routes that opens a 3-item menu: Upload Video, Upload Short, Go Live; each item navigates into the existing corresponding flow with the correct pre-selection/focus.
+- Replace the Watch-page viewer timer inputs with two clock-style time selectors (From/To), compute countdown duration from the selected range, validate invalid ranges in English, and keep the existing auto-pause behavior when the timer ends.
+- Add a prominent text-based Shorts branding element in the Shorts page header that says “Shorts” and indicates users can watch Shorts.
+- Poll/refetch the Live sessions list while the Live page is open at an interval of 5 seconds or less using existing APIs (no websockets).
 
-**User-visible outcome:** Guests can clearly see they are browsing as a guest and can browse a public list of live sessions and view details; signed-in users can start a “Live” session with a title and later end it, and the app displays the OmniStream Discord server/contact info in English.
+**User-visible outcome:** Signed-in users can quickly upload a video/short or start going live from a floating “+” menu, set a Watch timer using From/To clock-style times that still pauses playback at zero, see clearer “Shorts” branding on the Shorts page, and observe Live sessions appear/disappear within ~5 seconds while on the Live page.

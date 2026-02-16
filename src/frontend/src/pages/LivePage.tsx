@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from '@tanstack/react-router';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearch } from '@tanstack/react-router';
 import { useInternetIdentity } from '../hooks/useInternetIdentity';
 import { useGetCallerUserProfile, useGetAllActiveLiveSessions, useStartLiveSession } from '../hooks/useQueries';
 import ProfileSetupModal from '../components/ProfileSetupModal';
@@ -15,6 +15,7 @@ import { toast } from 'sonner';
 
 export default function LivePage() {
   const navigate = useNavigate();
+  const search = useSearch({ strict: false }) as { startLive?: string };
   const { identity } = useInternetIdentity();
   const { data: userProfile, isLoading: profileLoading, isFetched } = useGetCallerUserProfile();
   const { data: liveSessions = [], isLoading: sessionsLoading } = useGetAllActiveLiveSessions();
@@ -26,6 +27,12 @@ export default function LivePage() {
 
   const isAuthenticated = !!identity;
   const showProfileSetup = isAuthenticated && !profileLoading && isFetched && userProfile === null;
+
+  useEffect(() => {
+    if (search.startLive === '1' && isAuthenticated && !showProfileSetup) {
+      setShowStartForm(true);
+    }
+  }, [search.startLive, isAuthenticated, showProfileSetup]);
 
   const handleStartSession = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -88,6 +95,7 @@ export default function LivePage() {
                     onChange={(e) => setTitle(e.target.value)}
                     placeholder="Enter session title"
                     required
+                    autoFocus
                   />
                 </div>
                 <div className="space-y-2">

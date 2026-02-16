@@ -1,4 +1,4 @@
-import { useNavigate } from '@tanstack/react-router';
+import { useNavigate, useSearch } from '@tanstack/react-router';
 import { useInternetIdentity } from '../hooks/useInternetIdentity';
 import { useGetCallerUserProfile } from '../hooks/useQueries';
 import UploadForm from '../components/UploadForm';
@@ -9,6 +9,7 @@ import { LogIn, Upload, Eye } from 'lucide-react';
 
 export default function UploadPage() {
   const navigate = useNavigate();
+  const search = useSearch({ strict: false }) as { mediaType?: 'video' | 'short' };
   const { identity, login } = useInternetIdentity();
   const { data: userProfile, isLoading: profileLoading, isFetched } = useGetCallerUserProfile();
 
@@ -58,7 +59,7 @@ export default function UploadPage() {
           <h1 className="text-3xl font-bold mb-2">Upload</h1>
           <p className="text-muted-foreground">Share your content with the world</p>
         </div>
-        <UploadForm onSuccess={handleUploadSuccess} />
+        <UploadForm onSuccess={handleUploadSuccess} initialMediaType={search.mediaType} />
       </div>
     </>
   );

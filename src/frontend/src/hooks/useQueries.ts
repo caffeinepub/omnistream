@@ -135,6 +135,7 @@ export function useGetAllActiveLiveSessions() {
       return actor.getAllActiveLiveSessions();
     },
     enabled: !!actor && !isFetching,
+    refetchInterval: 5000, // Poll every 5 seconds
   });
 }
 

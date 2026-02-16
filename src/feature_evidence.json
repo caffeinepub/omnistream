@@ -2,30 +2,13 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-surface-omnistream-discord-community-information-in-the-app-ui-using-the-provided-discord-server-name-and-contact-username-server-ommistream-and-user-contact-scottiscool",
-      "featureTitle": "Surface OmniStream Discord community information in the app UI using the provided Discord server name and contact username: server \"ommistream\" and user/contact \"scottiscool\".",
+      "featureId": "feature-add-a-signed-in-only-floating-action-button-fixed-to-the-bottom-right-of-the-app-that-opens-a-small-menu-with-three-actions-upload-video-upload-short-and-go-live-selecting-an-action-must-navigate-the-user-to-the-correct-existing-page-flow-to-complete-that-action",
+      "featureTitle": "Add a signed-in-only floating “+” action button fixed to the bottom-right of the app that opens a small menu with three actions: “Upload Video”, “Upload Short”, and “Go Live”. Selecting an action must navigate the user to the correct existing page/flow to complete that action.",
       "files": [
-        "frontend/src/components/Footer.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "blob-storage@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-10"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-make-the-guest-experience-explicit-in-the-ui-when-the-user-is-not-authenticated-clearly-indicate-they-are-browsing-as-a-guest-and-that-uploading-posting-requires-signing-in",
-      "featureTitle": "Make the guest experience explicit in the UI: when the user is not authenticated, clearly indicate they are browsing as a guest and that uploading/posting requires signing in.",
-      "files": [
-        "frontend/src/components/NavBar.tsx",
+        "frontend/src/components/AppLayout.tsx",
+        "frontend/src/components/FloatingActionButton.tsx",
+        "frontend/src/components/UploadForm.tsx",
+        "frontend/src/pages/LivePage.tsx",
         "frontend/src/pages/UploadPage.tsx"
       ],
       "components": [
@@ -38,20 +21,15 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-11"
+        "REQ-13"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-add-a-basic-go-live-capability-as-a-first-mvp-allow-authenticated-users-to-create-and-end-a-live-session-metadata-only-and-allow-all-users-including-guests-to-browse-a-list-of-live-sessions-and-view-a-live-session-details-page",
-      "featureTitle": "Add a basic \"Go Live\" capability as a first MVP: allow authenticated users to create and end a live session (metadata-only), and allow all users (including guests) to browse a list of live sessions and view a live session details page.",
+      "featureId": "feature-update-the-watch-page-viewer-timer-ui-to-use-a-simple-clock-style-time-range-selector-from-time-and-to-time-instead-of-raw-minutes-seconds-inputs-the-timer-must-compute-the-countdown-duration-from-the-selected-range-and-still-pause-the-video-automatically-when-it-reaches-zero",
+      "featureTitle": "Update the Watch-page viewer timer UI to use a simple clock-style time-range selector (“from” time and “to” time) instead of raw minutes/seconds inputs. The timer must compute the countdown duration from the selected range and still pause the video automatically when it reaches zero.",
       "files": [
-        "frontend/src/App.tsx",
-        "frontend/src/components/Footer.tsx",
-        "frontend/src/components/NavBar.tsx",
-        "frontend/src/hooks/useQueries.ts",
-        "frontend/src/pages/LiveDetailsPage.tsx",
-        "frontend/src/pages/LivePage.tsx"
+        "frontend/src/components/ViewerTimer.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -63,7 +41,47 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-12"
+        "REQ-14"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-a-clear-shorts-specific-branding-element-that-says-shorts-and-visually-indicates-users-can-watch-shorts-on-the-shorts-page-header-area-text-based-no-new-image-required-unless-necessary",
+      "featureTitle": "Add a clear Shorts-specific branding element that says “Shorts” and visually indicates users can watch Shorts on the Shorts page header area (text-based; no new image required unless necessary).",
+      "files": [
+        "frontend/src/pages/ShortsPage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-15"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-ensure-the-live-sessions-browsing-experience-updates-with-a-maximum-refresh-delay-of-5-seconds-by-polling-refetching-active-live-sessions-at-an-interval-of-5-seconds-or-less-while-the-live-page-is-open",
+      "featureTitle": "Ensure the Live sessions browsing experience updates with a maximum refresh delay of 5 seconds by polling/refetching active live sessions at an interval of 5 seconds or less while the Live page is open.",
+      "files": [
+        "frontend/src/hooks/useQueries.ts"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-16"
       ],
       "confidence": "high"
     }

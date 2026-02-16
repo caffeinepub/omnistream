@@ -1,89 +1,99 @@
 {
   "kind": "build_request",
-  "title": "Add guest-mode messaging, Discord community info, and a basic Go Live feature",
+  "title": "Add signed-in floating + action button, clock-style viewer timer, Shorts branding, and ≤5s live list refresh",
   "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-10",
-      "text": "Surface OmniStream Discord community information in the app UI using the provided Discord server name and contact username: server \"ommistream\" and user/contact \"scottiscool\".",
+      "id": "REQ-13",
+      "text": "Add a signed-in-only floating “+” action button fixed to the bottom-right of the app that opens a small menu with three actions: “Upload Video”, “Upload Short”, and “Go Live”. Selecting an action must navigate the user to the correct existing page/flow to complete that action.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-4"
+          "msg-user-last"
         ],
         "quotes": [
-          "discord is scottiscool and server is ommistream"
+          "Build ot now and the plus can make u post video short and go live"
         ]
       },
       "acceptanceCriteria": [
-        "The footer (or another always-visible section) displays Discord server name \"ommistream\" and contact \"scottiscool\" in English.",
-        "No third-party Discord authentication/integration is added.",
-        "If any social icons/links remain that do not have real URLs, they do not misleadingly imply an official Discord link unless a URL is explicitly provided."
+        "When the user is not authenticated, the floating + button is not visible.",
+        "When the user is authenticated, a circular floating + button is visible at bottom-right on all main routes (Home, Shorts, Live, Watch, Upload).",
+        "Clicking/tapping the + button opens a menu with exactly: Upload Video, Upload Short, Go Live.",
+        "Choosing Upload Video opens the existing upload flow pre-selected for long-form video.",
+        "Choosing Upload Short opens the existing upload flow pre-selected for short.",
+        "Choosing Go Live navigates to the existing Live page and opens the start-live flow (or focuses the existing Go Live action).",
+        "All user-facing labels are in English."
       ]
     },
     {
-      "id": "REQ-11",
-      "text": "Make the guest experience explicit in the UI: when the user is not authenticated, clearly indicate they are browsing as a guest and that uploading/posting requires signing in.",
+      "id": "REQ-14",
+      "text": "Update the Watch-page viewer timer UI to use a simple clock-style time-range selector (“from” time and “to” time) instead of raw minutes/seconds inputs. The timer must compute the countdown duration from the selected range and still pause the video automatically when it reaches zero.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-4"
+          "msg-user-timer"
         ],
         "quotes": [
-          "no sogn in u can be a gest on it but can't post into your sign in"
+          "the timer has a clock simple to set this time to this time"
         ]
       },
       "acceptanceCriteria": [
-        "When not signed in, at least one prominent UI location (e.g., NavBar and/or Upload page) shows \"Browsing as a guest\" (or equivalent) in English.",
-        "Upload page unauthenticated state explicitly states that guests can browse but must sign in to upload/post.",
-        "Authenticated users do not see guest-only messaging."
+        "Viewer timer UI provides two clock-style inputs (From and To) for selecting times (e.g., using time pickers or hour/minute selectors).",
+        "Starting the timer computes a positive duration based on the selected range; if the range is invalid (e.g., To not after From), show an English validation message and do not start.",
+        "While active, the timer displays remaining time and provides a stop/cancel action.",
+        "When the timer reaches zero, the existing onTimerEnd behavior triggers and the video pauses as before."
       ]
     },
     {
-      "id": "REQ-12",
-      "text": "Add a basic \"Go Live\" capability as a first MVP: allow authenticated users to create and end a live session (metadata-only), and allow all users (including guests) to browse a list of live sessions and view a live session details page.",
-      "target": "both",
+      "id": "REQ-15",
+      "text": "Add a clear Shorts-specific branding element that says “Shorts” and visually indicates users can watch Shorts on the Shorts page header area (text-based; no new image required unless necessary).",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-4"
+          "msg-user-shorts-logo"
         ],
         "quotes": [
-          "and u can go live"
+          "And a logo that says shorts and u can watch shorts"
         ]
       },
       "acceptanceCriteria": [
-        "A new \"Live\" (or \"Go Live\") entry point is available in the app navigation and routes to a dedicated page.",
-        "Guests can view a public list of live sessions (including an empty state when none exist).",
-        "Authenticated users can start a live session by providing, at minimum, a title; the session becomes visible in the public list as \"Live\".",
-        "Authenticated users can end a live session they started; ended sessions are clearly marked as ended or are removed from the \"Live now\" list (implementation choice, but must be consistent).",
-        "Backend exposes canister methods to create, end, list, and fetch live session metadata, with access control that prevents guests from creating/ending sessions and prevents users from ending sessions they did not start.",
-        "User-facing text is in English.",
-        "This MVP does not require real-time video streaming; it is explicitly metadata/status-driven."
+        "The Shorts page header includes a prominent “Shorts” branding element (e.g., badge/lockup) in addition to the page title.",
+        "The branding element includes English text that indicates watching Shorts (e.g., subtitle/tagline) without changing app functionality.",
+        "No backend changes are required for this branding element."
+      ]
+    },
+    {
+      "id": "REQ-16",
+      "text": "Ensure the Live sessions browsing experience updates with a maximum refresh delay of 5 seconds by polling/refetching active live sessions at an interval of 5 seconds or less while the Live page is open.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-user-last"
+        ],
+        "quotes": [
+          "and the delay is no longer then 5 sec"
+        ]
+      },
+      "acceptanceCriteria": [
+        "While the Live page is open, the list of active live sessions is automatically refreshed on an interval of ≤ 5 seconds.",
+        "Starting or ending a live session becomes visible to another user on the Live page within 5 seconds (assuming normal network conditions).",
+        "This refresh behavior does not require real-time sockets/websockets and uses the existing query/actor APIs."
       ]
     }
   ],
   "constraints": [
-    "Backend must remain a single Motoko actor in backend/main.mo (no additional backend services).",
-    "Do not edit files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or frontend/src/components/ui; compose them instead.",
-    "Respect existing Internet Identity auth model: unauthenticated users can browse but cannot upload/post or create live sessions."
+    "Backend must remain a single Motoko actor (all logic in backend/main.mo).",
+    "Do not edit files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or anything under frontend/src/components/ui; compose them instead.",
+    "Use English for any user-facing text.",
+    "Respect the existing “Go Live” feature as metadata-only; do not introduce unsupported external streaming infrastructure."
   ],
   "nonGoals": [
-    "Implement real-time live video streaming (e.g., WebRTC/HLS), low-latency chat, or WebSockets.",
-    "Add Discord OAuth/login or any Discord API integration beyond displaying the provided server/contact info.",
-    "Change or redesign already-implemented core video upload/watch features beyond adding guest messaging and the new Live MVP."
+    "Implement real-time live video streaming with end-to-end latency ≤ 5 seconds (beyond metadata-only MVP).",
+    "Add guest upload and moderator approval workflows (not requested in the final user instruction).",
+    "Introduce third-party auth providers beyond Internet Identity."
   ],
   "imageRequirements": {
     "required": [],
     "edits": []
-  },
-  "userProfileUpdate": {
-    "goalsToAdd": [],
-    "goalsToRemove": [],
-    "preferencesToAdd": [],
-    "preferencesToRemove": [],
-    "miscToAdd": [],
-    "miscToRemove": [],
-    "fieldsToSet": {},
-    "fieldsToDelete": []
   }
 }

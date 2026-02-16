@@ -1,6 +1,7 @@
 import { ReactNode } from 'react';
 import NavBar from './NavBar';
 import Footer from './Footer';
+import FloatingActionButton from './FloatingActionButton';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -14,6 +15,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
         {children}
       </main>
       <Footer />
+      <FloatingActionButton />
     </div>
   );
 }

@@ -1,7 +1,8 @@
 import { useGetAllShorts } from '../hooks/useQueries';
 import ShortCard from '../components/ShortCard';
 import EmptyState from '../components/EmptyState';
-import { Film, Loader2 } from 'lucide-react';
+import { Film, Loader2, Play } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 export default function ShortsPage() {
   const { data: shorts, isLoading } = useGetAllShorts();
@@ -16,9 +17,17 @@ export default function ShortsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold mb-2">Shorts</h1>
-        <p className="text-muted-foreground">Quick, engaging vertical videos</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <div className="flex items-center gap-3 mb-2">
+            <h1 className="text-3xl font-bold">Shorts</h1>
+            <Badge variant="secondary" className="gap-1.5 px-3 py-1 text-sm font-semibold">
+              <Play className="h-3.5 w-3.5" />
+              Watch Shorts
+            </Badge>
+          </div>
+          <p className="text-muted-foreground">Quick, engaging vertical videos</p>
+        </div>
       </div>
 
       {shorts && shorts.length > 0 ? (

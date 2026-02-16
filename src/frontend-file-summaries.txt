@@ -1,7 +1,7 @@
 {
   "frontend/src/App.tsx": "Main application component with TanStack Router setup, splash screen state management, theme provider, and routes for Home, Shorts, Upload, Watch, Live, and Live Details pages.",
   "frontend/src/components/SplashScreen.tsx": "Full-screen splash component displaying the OmniStream logo image with founder/co-founder text, shown for 2.5 seconds on initial load.",
-  "frontend/src/components/AppLayout.tsx": "Shared layout wrapper providing consistent structure with navigation header, main content area, and footer across all pages.",
+  "frontend/src/components/AppLayout.tsx": "Shared layout wrapper providing consistent structure with navigation header, main content area, footer, and floating action button across all pages.",
   "frontend/src/components/NavBar.tsx": "Top navigation bar with OmniStream branding, route links (Home, Shorts, Live, Upload), guest mode indicator badge for unauthenticated users, user profile display, and authentication controls.",
   "frontend/src/components/AuthControls.tsx": "Sign in/sign out button component using Internet Identity, with query cache clearing on logout.",
   "frontend/src/components/ProfileSetupModal.tsx": "Modal dialog prompting first-time authenticated users to enter their display name, with form validation and save mutation.",
@@ -9,16 +9,17 @@
   "frontend/src/components/EmptyState.tsx": "Reusable empty state component displaying an icon, title, and description for pages with no content.",
   "frontend/src/components/VideoCard.tsx": "Video card component displaying thumbnail preview, title, duration, and upload date with hover effects and navigation to watch page.",
   "frontend/src/components/ShortCard.tsx": "Vertical short card component with thumbnail, title overlay, and duration badge optimized for portrait aspect ratio.",
-  "frontend/src/components/UploadForm.tsx": "Complete upload form with title input, media type selection (video/short), file picker, duration detection/display, progress tracking, and error handling.",
+  "frontend/src/components/UploadForm.tsx": "Complete upload form with title input, media type selection (video/short) that can be pre-selected via prop, file picker, duration detection/display, progress tracking, and error handling.",
   "frontend/src/components/VideoPlayer.tsx": "Custom video player with play/pause, seek, volume controls, time display, and fullscreen support, exposing pause method via ref.",
-  "frontend/src/components/ViewerTimer.tsx": "Countdown timer component allowing users to set minutes/seconds, with active countdown display and callback trigger when timer reaches zero.",
+  "frontend/src/components/ViewerTimer.tsx": "Countdown timer component with clock-style From/To time inputs, validation for time ranges, active countdown display, and callback trigger when timer reaches zero.",
   "frontend/src/pages/HomePage.tsx": "Home page displaying grid of uploaded videos with loading states, empty state, and profile setup modal for new authenticated users.",
-  "frontend/src/pages/ShortsPage.tsx": "Shorts page displaying grid of vertical short videos with loading states and empty state when no shorts exist.",
-  "frontend/src/pages/UploadPage.tsx": "Upload page with authentication gate showing explicit guest browsing message and sign-in prompt for guests, and upload form for authenticated users with profile setup modal.",
+  "frontend/src/pages/ShortsPage.tsx": "Shorts page displaying grid of vertical short videos with prominent \"Shorts\" branding badge that says \"Watch Shorts\", loading states, and empty state when no shorts exist.",
+  "frontend/src/pages/UploadPage.tsx": "Upload page with authentication gate, guest browsing message, and upload form for authenticated users with support for pre-selected media type via URL parameter.",
   "frontend/src/pages/WatchPage.tsx": "Watch page displaying video player, metadata (title, date, duration, type), and viewer timer with back navigation and error handling.",
-  "frontend/src/hooks/useQueries.ts": "React Query hooks for all backend operations including videos, shorts, media, user profiles, media upload, and live session management (list active sessions, fetch session details, start session, end session) with proper error handling and cache invalidation.",
+  "frontend/src/hooks/useQueries.ts": "React Query hooks for all backend operations including videos, shorts, media, user profiles, media upload, and live session management with 5-second polling for active live sessions and proper error handling and cache invalidation.",
   "frontend/src/index.css": "Global styles with OKLCH color system defining cyan/teal primary theme with warm accents for both light and dark modes.",
   "frontend/tailwind.config.js": "Tailwind configuration with custom OKLCH color tokens, Inter font family, and extended design system for OmniStream theme.",
-  "frontend/src/pages/LivePage.tsx": "Live sessions page displaying public list of active live sessions with empty state, and authenticated-only controls to start a new live session with title and optional description.",
-  "frontend/src/pages/LiveDetailsPage.tsx": "Live session details page accessible to all users showing session metadata (title, description, status, start time), with end session controls visible only to the session owner."
+  "frontend/src/pages/LivePage.tsx": "Live sessions page displaying public list of active live sessions with empty state, authenticated-only controls to start a new live session, and support for auto-opening the start form via URL parameter.",
+  "frontend/src/pages/LiveDetailsPage.tsx": "Live session details page accessible to all users showing session metadata (title, description, status, start time), with end session controls visible only to the session owner.",
+  "frontend/src/components/FloatingActionButton.tsx": "Floating action button component visible only to authenticated users, displaying a circular + button in the bottom-right corner that opens a menu with Upload Video, Upload Short, and Go Live actions."
 }
