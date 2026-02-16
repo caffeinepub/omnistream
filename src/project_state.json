@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 25,
+  "projectStateVersion": 31,
   "summary": "Build OmniStream, a YouTube-like video sharing website supporting user-uploaded long videos and shorts, starting empty, with a logo splash/loading screen (including founder/co-founder text), 24-hour max video length, and an optional viewer timer that can pause playback. Add a signed-in-only floating + action button for Upload/Short/Go Live, a simpler clock-style timer setter, a Shorts-specific logo/branding element, and require live streaming delay no longer than 5 seconds. Deploy the website so it is publicly accessible (go live), and configure a custom domain so the final public URL is ommistream.net. Add a comments section under every video on the Watch page, and remove the viewer timer feature entirely.",
   "architectural_notes": [
     "Guest mode supported: browsing allowed while unauthenticated; uploading/posting requires sign-in.",
@@ -9,13 +9,16 @@
     "Custom domain target for public site: ommistream.net (configure DNS + IC boundary nodes / canister routing as needed and document the final URL).",
     "Frontend assets canister ID provided by user for public access URL generation: rdmx6-jaaaa-aaaaa-aaadq-cai (space removed from earlier copy).",
     "Public canister URL format to use for preview/access: https://rdmx6-jaaaa-aaaaa-aaadq-cai.icp0.io",
-    "Viewer timer feature has been removed entirely from the Watch experience (no timer UI/logic)."
+    "Viewer timer feature has been removed entirely from the Watch experience (no timer UI/logic).",
+    "For Go Live, add a broadcaster-side camera preview using browser getUserMedia (frontend capture/preview); clarify later whether this implies true viewer-side livestreaming or preview-only.",
+    "For Go Live camera preview, request both camera and microphone permissions immediately on opening the Go Live form; if denied, display a clear user-facing error message and hide/disable the preview."
   ],
   "known_issues": [
     "User reports posting/uploading currently \"won't post now\" (upload failing).",
     "Deployed site access failing with \"Canister ID Not Resolved\" when opening the icp0.io URL (user indicates the deployment link/domain they are using does not resolve).",
     "Custom domain www.ommistream.com is not resolving (DNS_PROBE_FINISHED_NXDOMAIN).",
-    "User-provided canister ID was initially sent with an embedded space (\"aaad q-cai\"); must confirm exact copy/paste ID format when generating URLs."
+    "User-provided canister ID was initially sent with an embedded space (\"aaad q-cai\"); must confirm exact copy/paste ID format when generating URLs.",
+    "User reports the app is lagging (performance issue)."
   ],
   "isFixRequest": false,
   "existing_features": [
@@ -298,6 +301,70 @@
         "REQ-44"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-fix-the-user-reported-app-lag-performance-issues-by-identifying-and-eliminating-the-main-causes-of-ui-sluggishness-across-core-browsing-and-creation-flows-feeds-polls-page-and-any-newly-added-posts-flow-without-changing-product-behavior",
+      "title": "Fix the user-reported app lag/performance issues by identifying and eliminating the main causes of UI sluggishness across core browsing and creation flows (feeds, Polls page, and any newly-added Posts flow), without changing product behavior.",
+      "reqIds": [
+        "REQ-45"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-extend-the-signed-in-only-floating-action-button-menu-to-include-a-new-action-for-polls-that-navigates-to-the-existing-polls-page",
+      "title": "Extend the signed-in-only floating “+” action button menu to include a new action for Polls that navigates to the existing /polls page.",
+      "reqIds": [
+        "REQ-46"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-new-post-content-type-that-lets-authenticated-users-create-a-post-consisting-of-an-image-photo-plus-a-text-caption-and-lets-all-users-including-guests-browse-a-list-of-these-posts",
+      "title": "Add a new “Post” content type that lets authenticated users create a post consisting of an image (photo) plus a text caption, and lets all users (including guests) browse a list of these posts.",
+      "reqIds": [
+        "REQ-47"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-navigation-for-the-new-posts-feature-add-a-new-posts-route-in-the-app-router-and-add-a-new-post-action-to-the-signed-in-fab-menu-that-navigates-to-the-post-creation-browsing-experience",
+      "title": "Add navigation for the new Posts feature: add a new /posts route in the app router and add a new “Post” action to the signed-in FAB menu that navigates to the post creation/browsing experience.",
+      "reqIds": [
+        "REQ-48"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-live-go-live-creation-flow-to-show-the-broadcaster-a-live-device-camera-preview-while-starting-a-live-session-using-the-browser-mediadevices-getusermedia-api-frontend-only-the-preview-must-be-visible-inside-the-existing-start-a-live-session-card-on-live-when-the-start-form-is-shown-and-it-must-not-change-the-existing-backend-metadata-only-live-session-behavior",
+      "title": "Update the Live/Go Live creation flow to show the broadcaster a live device-camera preview while starting a live session, using the browser MediaDevices/getUserMedia API (frontend-only). The preview must be visible inside the existing \"Start a Live Session\" card on /live when the start form is shown, and it must not change the existing backend metadata-only live session behavior.",
+      "reqIds": [
+        "REQ-50"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-live-page-user-facing-copy-around-the-camera-preview-so-it-clearly-communicates-that-the-camera-preview-is-local-only-and-that-real-time-livestream-video-to-viewers-is-not-implemented-in-this-mvp-english-text-only",
+      "title": "Update Live page user-facing copy around the camera preview so it clearly communicates that the camera preview is local-only and that real-time livestream video to viewers is not implemented in this MVP (English text only).",
+      "reqIds": [
+        "REQ-51"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-request-both-camera-and-microphone-permissions-as-soon-as-the-authenticated-user-opens-the-go-live-start-form-the-start-a-live-session-card-on-live-so-the-browser-shows-the-combined-permission-prompts-immediately-when-the-local-preview-mounts",
+      "title": "Request both camera and microphone permissions as soon as the authenticated user opens the Go Live start form (the \"Start a Live Session\" card on /live), so the browser shows the combined permission prompts immediately when the local preview mounts.",
+      "reqIds": [
+        "REQ-52"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-if-camera-and-or-microphone-permission-is-denied-for-the-go-live-preview-show-a-clear-custom-error-message-in-the-preview-area-that-explicitly-mentions-camera-and-microphone-permissions-and-tells-the-user-they-can-still-create-a-live-session-without-the-preview",
+      "title": "If camera and/or microphone permission is denied for the Go Live preview, show a clear custom error message in the preview area that explicitly mentions camera and microphone permissions and tells the user they can still create a live session without the preview.",
+      "reqIds": [
+        "REQ-53"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -493,6 +560,44 @@
       "reqIds": [
         "REQ-42"
       ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-44",
+      "summary": "Fix app lag/performance issues reported by the user",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-45",
+      "summary": "Add a Polls option/category to the signed-in floating '+' action button menu",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-46",
+      "summary": "Add a new post type: photo + caption posts (e.g., upload an image and write text)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-51",
+      "summary": "Persist photo-post state safely across canister upgrades by extending backend stable storage and adding a conditional migration in backend/migration.mo if required by the current state shape.",
+      "reqIds": [
+        "REQ-49"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-52",
+      "summary": "Update Go Live to show the broadcaster’s device camera (live camera preview) during the live flow (e.g., using browser getUserMedia) so users can “see the camera on live”.",
+      "reqIds": [],
+      "status": "in_progress"
+    },
+    {
+      "id": "AR-53",
+      "summary": "Request camera + microphone permission prompts for the Go Live camera preview immediately when the Go Live form opens; if denied, show a custom error message (no other permission behavior changes).",
+      "reqIds": [],
       "status": "pending"
     }
   ],

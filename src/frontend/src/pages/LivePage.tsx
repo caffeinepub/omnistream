@@ -4,6 +4,7 @@ import { useInternetIdentity } from '../hooks/useInternetIdentity';
 import { useGetCallerUserProfile, useGetAllActiveLiveSessions, useStartLiveSession } from '../hooks/useQueries';
 import ProfileSetupModal from '../components/ProfileSetupModal';
 import EmptyState from '../components/EmptyState';
+import LiveCameraPreview from '../components/LiveCameraPreview';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -22,6 +23,7 @@ export default function LivePage() {
   const startLiveSession = useStartLiveSession();
 
   const [showStartForm, setShowStartForm] = useState(false);
+  const [formKey, setFormKey] = useState(0);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
 
@@ -31,6 +33,7 @@ export default function LivePage() {
   useEffect(() => {
     if (search.startLive === '1' && isAuthenticated && !showProfileSetup) {
       setShowStartForm(true);
+      setFormKey(prev => prev + 1);
     }
   }, [search.startLive, isAuthenticated, showProfileSetup]);
 
@@ -45,14 +48,29 @@ export default function LivePage() {
     try {
       await startLiveSession.mutateAsync({ title: title.trim(), description: description.trim() });
       toast.success('Live session started!');
+      
+      // Navigate first, then cleanup
+      const sessionTitle = title.trim();
       setTitle('');
       setDescription('');
       setShowStartForm(false);
-      navigate({ to: '/live/$title', params: { title: title.trim() } });
+      
+      navigate({ to: '/live/$title', params: { title: sessionTitle } });
     } catch (error: any) {
       console.error('Failed to start live session:', error);
       toast.error(error.message || 'Failed to start live session');
     }
+  };
+
+  const handleCancelForm = () => {
+    setShowStartForm(false);
+    setTitle('');
+    setDescription('');
+  };
+
+  const handleGoLive = () => {
+    setShowStartForm(true);
+    setFormKey(prev => prev + 1);
   };
 
   return (
@@ -70,7 +88,7 @@ export default function LivePage() {
             </p>
           </div>
           {isAuthenticated && !showStartForm && (
-            <Button onClick={() => setShowStartForm(true)} className="gap-2">
+            <Button onClick={handleGoLive} className="gap-2">
               <Plus className="h-4 w-4" />
               Go Live
             </Button>
@@ -78,15 +96,21 @@ export default function LivePage() {
         </div>
 
         {showStartForm && isAuthenticated && (
-          <Card>
+          <Card key={formKey}>
             <CardHeader>
               <CardTitle>Start a Live Session</CardTitle>
               <CardDescription>
-                Create a new live session (metadata only - no real streaming)
+                Set up your live session with a local camera preview
               </CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleStartSession} className="space-y-4">
+                {/* Camera Preview */}
+                <div className="space-y-2">
+                  <Label>Camera Preview</Label>
+                  <LiveCameraPreview onStop={handleCancelForm} />
+                </div>
+
                 <div className="space-y-2">
                   <Label htmlFor="title">Title *</Label>
                   <Input
@@ -125,11 +149,7 @@ export default function LivePage() {
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={() => {
-                      setShowStartForm(false);
-                      setTitle('');
-                      setDescription('');
-                    }}
+                    onClick={handleCancelForm}
                   >
                     Cancel
                   </Button>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -70,6 +70,39 @@ export default function PollsPage() {
 
   const canSubmit = question.trim().length > 0 && 
     options.filter(opt => opt.trim().length > 0).length >= 2;
+
+  // Memoize the rendered poll list to prevent re-renders during form typing
+  const pollsList = useMemo(() => {
+    if (isLoading) {
+      return (
+        <div className="text-center py-12">
+          <p className="text-muted-foreground">Loading polls...</p>
+        </div>
+      );
+    }
+    
+    if (polls.length === 0) {
+      return (
+        <EmptyState
+          icon={<BarChart3 className="h-16 w-16" />}
+          title="No polls yet"
+          description={
+            isAuthenticated
+              ? 'Be the first to create a poll!'
+              : 'Sign in to create the first poll.'
+          }
+        />
+      );
+    }
+    
+    return (
+      <div className="space-y-4">
+        {polls.map((poll) => (
+          <PollCard key={poll.id} poll={poll} />
+        ))}
+      </div>
+    );
+  }, [polls, isLoading, isAuthenticated]);
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
@@ -196,27 +229,7 @@ export default function PollsPage() {
 
         <Separator />
 
-        {isLoading ? (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">Loading polls...</p>
-          </div>
-        ) : polls.length === 0 ? (
-          <EmptyState
-            icon={<BarChart3 className="h-16 w-16" />}
-            title="No polls yet"
-            description={
-              isAuthenticated
-                ? 'Be the first to create a poll!'
-                : 'Sign in to create the first poll.'
-            }
-          />
-        ) : (
-          <div className="space-y-4">
-            {polls.map((poll) => (
-              <PollCard key={poll.id} poll={poll} />
-            ))}
-          </div>
-        )}
+        {pollsList}
       </div>
     </div>
   );

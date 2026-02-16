@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -13,7 +13,7 @@ interface PollCardProps {
   poll: Poll;
 }
 
-export default function PollCard({ poll }: PollCardProps) {
+function PollCard({ poll }: PollCardProps) {
   const { identity } = useInternetIdentity();
   const isAuthenticated = !!identity;
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
@@ -136,3 +136,5 @@ export default function PollCard({ poll }: PollCardProps) {
     </Card>
   );
 }
+
+export default React.memo(PollCard);

@@ -4,7 +4,6 @@ import Footer from './Footer';
 import FloatingActionButton from './FloatingActionButton';
 import BackendUnavailableBanner from './BackendUnavailableBanner';
 import { useActor } from '../hooks/useActor';
-import { useGetForYouFeed } from '../hooks/useQueries';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -12,12 +11,9 @@ interface AppLayoutProps {
 
 export default function AppLayout({ children }: AppLayoutProps) {
   const { actor, isFetching: actorFetching } = useActor();
-  
-  // Use a query to detect if backend is unavailable
-  const { isError: feedError, isFetching: feedFetching } = useGetForYouFeed();
 
-  // Show banner if actor is null after fetching completes, or if queries consistently fail
-  const showUnavailableBanner = !actorFetching && !actor && !feedFetching;
+  // Show banner if actor is unavailable after initialization
+  const showUnavailableBanner = !actorFetching && !actor;
 
   return (
     <div className="min-h-screen flex flex-col bg-background">

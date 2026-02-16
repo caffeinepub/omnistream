@@ -1,75 +1,24 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-16T03:01:59.378Z",
-  "summary": "Frontend Polls route/page and UI components were added (PollsPage, PollCard, Poll type) and navigation was updated to include Polls. However, the diff summary does not provide evidence that the backend poll data models/storage, poll APIs, or upgrade-safe stable migration for poll state were implemented in backend/main.mo, and the frontend React Query hooks’ implementations for polls are not visible in the truncated useQueries diff.",
+  "generatedAt": "2026-02-16T03:48:16.981Z",
+  "summary": "Diff implements a combined camera+microphone permission request on Go Live preview mount and shows explicit denial messaging in the preview area. LivePage changes ensure the preview mounts when the start form is shown (including via ?startLive=1). One potential gap is that the cleanup code may not reliably stop the stored preflight stream due to React effect closure behavior, though the preview stopCamera() call likely handles the active preview tracks.",
   "missing_requirements": [
     {
-      "id": "REQ-40",
-      "requirement": "Implement backend data models and stable storage for Polls (question, 2+ options, per-option vote counts, createdAt, creator principal) with per-principal single-vote-per-poll that supports changing vote.",
-      "reason": "The backend/main.mo diff excerpt shows no Poll types, poll storage variables, per-user vote tracking, or vote update logic. Only a migration stub file is added that does not introduce poll storage.",
+      "id": "REQ-52",
+      "requirement": "If the user closes the start form or navigates away, any active media tracks created for the preview are stopped and the device indicator turns off (no camera/mic left running).",
+      "reason": "LiveCameraPreview attempts cleanup, but the effect has an empty dependency array while referencing preflightStream state in the cleanup function. This risks the cleanup capturing the initial null value and not stopping the preflight stream via preflightStream.getTracks().forEach(track => track.stop()). (Preview tracks may still be stopped by stopCamera(), but the diff does not prove all tracks are reliably stopped in all cases.)",
       "evidence": [
-        "backend/main.mo",
-        "backend/migration.mo"
-      ]
-    },
-    {
-      "id": "REQ-41",
-      "requirement": "Add backend canister APIs: createPoll, getPoll, getAllPolls (newest first), votePoll with access control (create/vote signed-in only; read for all).",
-      "reason": "No evidence in the backend/main.mo diff excerpt of new public methods named createPoll/getPoll/getAllPolls/votePoll, nor logic for newest-first ordering.",
-      "evidence": [
-        "backend/main.mo"
-      ]
-    },
-    {
-      "id": "REQ-42",
-      "requirement": "Add/extend backend upgrade migration to introduce poll storage safely without losing existing state; initialize empty poll store when absent.",
-      "reason": "backend/migration.mo defines an OldActor with only media/live/userProfiles/comments and run(old) returns old unchanged; there is no new actor state shape including polls or initialization of poll storage/per-user vote index.",
-      "evidence": [
-        "backend/migration.mo",
-        "backend/main.mo"
-      ]
-    },
-    {
-      "id": "REQ-43",
-      "requirement": "Add React Query hooks for polls (fetch all, fetch single, create, vote) with cache invalidation/refetch after create/vote and clear English errors.",
-      "reason": "Polls hooks are referenced by components (useGetAllPolls/useCreatePoll/useVotePoll) but their implementations are not shown in the truncated useQueries diff, and there is no visible single-poll hook (getPoll) implementation in the provided excerpt.",
-      "evidence": [
-        "frontend/src/hooks/useQueries.ts",
-        "frontend/src/pages/PollsPage.tsx",
-        "frontend/src/components/PollCard.tsx"
-      ]
-    },
-    {
-      "id": "REQ-44",
-      "requirement": "UI prevents creating polls with fewer than 2 non-empty options and prevents voting without selecting an option, with clear English feedback.",
-      "reason": "PollsPage and PollCard have early returns when validation fails (empty question / <2 options; no selected option) but the provided excerpts do not show any user-visible English error/feedback for these validation failures.",
-      "evidence": [
-        "frontend/src/pages/PollsPage.tsx",
-        "frontend/src/components/PollCard.tsx"
+        "frontend/src/components/LiveCameraPreview.tsx"
       ]
     }
   ],
-  "hallucinated_features": [
-    {
-      "description": "Hash-routing normalization logic and explicit createHashHistory router setup changes unrelated to Polls functionality.",
-      "reason": "REQ-40–REQ-44 only request adding Polls backend/frontend features; routing change details beyond adding a Polls route are not requested.",
-      "evidence": [
-        "frontend/src/App.tsx"
-      ]
-    }
-  ],
-  "confidence": 0.72,
+  "hallucinated_features": [],
+  "confidence": 0.62,
   "changed_files": [
-    "backend/main.mo",
-    "backend/migration.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/App.tsx",
-    "frontend/src/components/NavBar.tsx",
-    "frontend/src/components/PollCard.tsx",
-    "frontend/src/hooks/useQueries.ts",
-    "frontend/src/pages/PollsPage.tsx",
-    "frontend/src/types/poll.ts",
+    "frontend/src/components/LiveCameraPreview.tsx",
+    "frontend/src/pages/LivePage.tsx",
     "project_state.json"
   ]
 }

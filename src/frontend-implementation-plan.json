@@ -1,60 +1,42 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Add Polls UI with React Query hooks (create, vote, and percentage results)",
+  "title": "Go Live preview: combined camera + microphone permission prompt with denial messaging",
   "requirements": [
     {
-      "id": "REQ-43",
-      "summary": "Add React Query hooks for polls (list, detail, create, vote) with immediate cache updates and clear English errors.",
+      "id": "REQ-52",
+      "summary": "Trigger a single combined browser permission prompt (camera + microphone) when the Go Live start form mounts, and ensure all media tracks are stopped on close/navigate away.",
       "acceptanceCriteria": [
-        "There are React Query hooks that wrap the new backend poll APIs.",
-        "After creating a poll, the polls list updates without a manual reload.",
-        "After voting, the poll’s displayed vote counts/percentages update without a manual reload.",
-        "Errors are surfaced as clear English messages (e.g., not signed in)."
+        "When an authenticated user clicks \"Go Live\" (or opens /live?startLive=1) and the start form is shown, the app immediately triggers a single browser permission request that includes both Camera and Microphone access.",
+        "The permission request is only triggered for the Go Live preview/start form flow on /live, and does not introduce new permission prompts elsewhere in the app.",
+        "If the user closes the start form or navigates away, any active media tracks created for the preview are stopped and the device indicator turns off (no camera/mic left running)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/backend.d.ts",
+          "path": "frontend/src/components/LiveCameraPreview.tsx",
           "operation": "modify",
-          "description": "Extend the typed backend interface with poll-related types (Poll, PollId, etc.) and methods (createPoll, getPoll, getAllPolls, votePoll) so new React Query hooks can compile against the backend capabilities."
+          "description": "Use the selected camera component hook (camera/useCamera) for the preview, but add a mount-time preflight call to navigator.mediaDevices.getUserMedia with both video and audio to force a single combined permission prompt; immediately stop the preflight stream tracks after permission resolution, then start the camera preview via useCamera. Add robust cleanup to stop the useCamera stream on unmount so no camera/mic tracks remain active. Verify the component's usage instructions before implementing."
         },
         {
-          "path": "frontend/src/hooks/useQueries.ts",
+          "path": "frontend/src/pages/LivePage.tsx",
           "operation": "modify",
-          "description": "Add poll React Query hooks: useGetAllPolls, useGetPoll, useCreatePoll, useVotePoll. Ensure create/vote mutations update the cache by invalidating and/or updating ['polls'] and ['poll', pollId] query keys. Surface authorization and other failures as clear English Error messages. Use the selected 'authorization' component’s frontend guidance for authenticated vs guest behavior; verify the component's usage instructions before implementing."
+          "description": "Ensure the preview component only mounts when the authenticated user's Start a Live Session card is shown (current behavior) and that closing the form unmounts the preview (so cleanup runs). Optionally add a remount key when reopening the form so the combined permission prompt preflight runs exactly when the form is opened."
         }
       ]
     },
     {
-      "id": "REQ-44",
-      "summary": "Add a Polls page with poll list (newest first), signed-in-only creation form (2+ options), and voting UI that shows percentage results; guests can browse and see an English sign-in prompt for create/vote.",
+      "id": "REQ-53",
+      "summary": "Show a clear in-preview error state when camera and/or microphone permission is denied, explicitly mentioning both and noting the user can still start a live session without the preview.",
       "acceptanceCriteria": [
-        "A Polls route/page exists and is reachable from the main navigation.",
-        "Guests can view the polls list and per-poll results UI but cannot vote or create; the UI shows an English sign-in prompt.",
-        "Signed-in users can create a poll (question + at least 2 options).",
-        "Signed-in users can vote on a poll; after voting, the UI shows percentages for each option (and handles 0 total votes gracefully).",
-        "The UI prevents creating polls with fewer than 2 non-empty options and prevents voting without selecting an option, with clear English feedback."
+        "When the user denies either Camera or Microphone permission, the Go Live preview area shows an error state (not a silent failure).",
+        "The error message is in English and explicitly references both camera and microphone permissions (example acceptable wording: \"Camera or microphone permission denied. You can still create a live session without the preview.\").",
+        "The existing \"local-only preview\" explanatory copy remains accurate and is still shown when the preview is successfully running."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/PollsPage.tsx",
-          "operation": "create",
-          "description": "Create the Polls page that composes existing shadcn/ui components (e.g., Card, Button, Input, Label, Alert) to render: (1) polls list (newest first via useGetAllPolls), (2) a create-poll form gated to authenticated users, and (3) per-poll voting UI with computed percentages and graceful 0-vote handling. Use the selected 'shadcn-ui' component library for consistent UI composition; verify the component's usage instructions before implementing. Use the selected 'authorization' component’s frontend guidance (Internet Identity state) to show guest prompts and disable create/vote when unauthenticated; verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/components/PollCard.tsx",
-          "operation": "create",
-          "description": "Add a reusable PollCard component used by PollsPage to display a single poll: question, options, current totals/percentages, and voting controls. Implement local selection state, validation (must select an option before voting), and call useVotePoll; ensure the UI updates immediately via React Query cache updates. Use the selected 'shadcn-ui' components for layout and feedback; verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/App.tsx",
+          "path": "frontend/src/components/LiveCameraPreview.tsx",
           "operation": "modify",
-          "description": "Register the new /polls route in the TanStack Router route tree and wire it to PollsPage so it is navigable."
-        },
-        {
-          "path": "frontend/src/components/NavBar.tsx",
-          "operation": "modify",
-          "description": "Add a main navigation link to /polls (with an appropriate icon) so the Polls page is reachable from the primary app navigation. Use existing shadcn/ui Button-asChild Link pattern; verify the component's usage instructions before implementing."
+          "description": "Add a dedicated error state for the combined audio+video permission preflight (e.g., denied/dismissed), and update existing permission-related messaging from the camera hook so it explicitly references both camera and microphone permissions and clarifies the session can still be created without the preview; keep the existing local-only preview explanatory copy visible when the preview is running successfully. Verify the component's usage instructions before implementing."
         }
       ]
     }

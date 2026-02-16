@@ -2,10 +2,11 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-add-react-query-hooks-for-polls-fetch-all-polls-fetch-a-single-poll-create-a-poll-and-vote-on-a-poll-ensure-caches-update-immediately-after-create-vote-invalidate-refetch-the-relevant-queries",
-      "featureTitle": "Add React Query hooks for polls: fetch all polls, fetch a single poll, create a poll, and vote on a poll. Ensure caches update immediately after create/vote (invalidate/refetch the relevant queries).",
+      "featureId": "feature-request-both-camera-and-microphone-permissions-as-soon-as-the-authenticated-user-opens-the-go-live-start-form-the-start-a-live-session-card-on-live-so-the-browser-shows-the-combined-permission-prompts-immediately-when-the-local-preview-mounts",
+      "featureTitle": "Request both camera and microphone permissions as soon as the authenticated user opens the Go Live start form (the \"Start a Live Session\" card on /live), so the browser shows the combined permission prompts immediately when the local preview mounts.",
       "files": [
-        "frontend/src/hooks/useQueries.ts"
+        "frontend/src/components/LiveCameraPreview.tsx",
+        "frontend/src/pages/LivePage.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -14,21 +15,19 @@
         "shadcn-ui@1.0.0",
         "build-template-react@1.0.0",
         "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
+        "github-export-icp-cli@1.0.0",
+        "camera@1.0.0"
       ],
       "testIds": [
-        "REQ-43"
+        "REQ-52"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-add-a-new-polls-page-to-the-app-with-1-a-list-of-existing-polls-newest-first-2-a-poll-creation-form-for-signed-in-users-question-2-options-with-add-remove-option-controls-and-3-a-poll-voting-ui-where-users-can-select-an-option-and-immediately-see-percentage-results-per-option-guests-can-browse-polls-but-must-sign-in-to-create-vote-show-an-english-prompt",
-      "featureTitle": "Add a new Polls page to the app with: (1) a list of existing polls (newest first), (2) a poll creation form for signed-in users (question + 2+ options with add/remove option controls), and (3) a poll voting UI where users can select an option and immediately see percentage results per option. Guests can browse polls but must sign in to create/vote (show an English prompt).",
+      "featureId": "feature-if-camera-and-or-microphone-permission-is-denied-for-the-go-live-preview-show-a-clear-custom-error-message-in-the-preview-area-that-explicitly-mentions-camera-and-microphone-permissions-and-tells-the-user-they-can-still-create-a-live-session-without-the-preview",
+      "featureTitle": "If camera and/or microphone permission is denied for the Go Live preview, show a clear custom error message in the preview area that explicitly mentions camera and microphone permissions and tells the user they can still create a live session without the preview.",
       "files": [
-        "frontend/src/App.tsx",
-        "frontend/src/components/NavBar.tsx",
-        "frontend/src/components/PollCard.tsx",
-        "frontend/src/pages/PollsPage.tsx"
+        "frontend/src/components/LiveCameraPreview.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -37,10 +36,11 @@
         "shadcn-ui@1.0.0",
         "build-template-react@1.0.0",
         "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
+        "github-export-icp-cli@1.0.0",
+        "camera@1.0.0"
       ],
       "testIds": [
-        "REQ-44"
+        "REQ-53"
       ],
       "confidence": "high"
     }

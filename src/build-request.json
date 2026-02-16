@@ -1,131 +1,61 @@
 {
   "kind": "build_request",
-  "title": "Add Polls (create, vote, and percentage results)",
+  "title": "Request camera + microphone permission prompts for Go Live preview (with denial messaging)",
   "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-40",
-      "text": "Implement backend data models and stable storage for Polls, including: a poll question, a list of 2+ option labels, per-option vote counts, createdAt timestamp, and creator principal. Each authenticated principal can cast at most one vote per poll (changing vote should be supported by replacing their previous vote).",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-4"
-        ],
-        "quotes": [
-          "Make polls were you ask questions and put this or this and it shows what percentage of ppl like who"
-        ]
-      },
-      "acceptanceCriteria": [
-        "A poll record stores: question text, options (2+), createdAt, creator principal, and vote counts.",
-        "Voting is restricted to authenticated users; unauthenticated callers are rejected with a clear error (trap is acceptable if consistent with existing access control).",
-        "A principal can vote only once per poll; a subsequent vote updates their previous choice rather than incrementing totals twice.",
-        "Percentages can be derived reliably from stored totals (0-vote polls do not error)."
-      ]
-    },
-    {
-      "id": "REQ-41",
-      "text": "Add backend canister APIs for polls: createPoll(question, options) -> pollId (or poll object), getPoll(pollId), getAllPolls (newest first), and votePoll(pollId, optionIndex). Ensure APIs follow the existing single-actor access-control pattern (only signed-in users can create/vote; all users can read).",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-4",
-          "msg-6"
-        ],
-        "quotes": [
-          "Make polls were you ask questions and put this or this and it shows what percentage of ppl like who",
-          "Code it"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Authenticated users can create a poll with 2+ options and then retrieve it via getPoll and getAllPolls.",
-        "Guests can call getPoll/getAllPolls successfully.",
-        "votePoll updates the poll totals and per-user vote tracking as specified in REQ-40.",
-        "getAllPolls returns polls in reverse-chronological order (newest first)."
-      ]
-    },
-    {
-      "id": "REQ-42",
-      "text": "Add/extend backend upgrade migration so existing canister state upgrades safely when introducing poll storage (initialize an empty poll store and any per-user vote index needed) without losing existing media/live/comment/profile data.",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-6"
-        ],
-        "quotes": [
-          "Code it"
-        ]
-      },
-      "acceptanceCriteria": [
-        "On upgrade, the canister preserves existing media, live sessions, user profiles, and comments.",
-        "On upgrade, polls storage is initialized to empty when no prior polls exist.",
-        "Deployment does not fail due to missing fields in upgraded state."
-      ]
-    },
-    {
-      "id": "REQ-43",
-      "text": "Add React Query hooks for polls: fetch all polls, fetch a single poll, create a poll, and vote on a poll. Ensure caches update immediately after create/vote (invalidate/refetch the relevant queries).",
+      "id": "REQ-52",
+      "text": "Request both camera and microphone permissions as soon as the authenticated user opens the Go Live start form (the \"Start a Live Session\" card on /live), so the browser shows the combined permission prompts immediately when the local preview mounts.",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-4",
-          "msg-6"
+          "msg-7"
         ],
         "quotes": [
-          "Make polls were you ask questions and put this or this and it shows what percentage of ppl like who",
-          "Code it"
+          "Make sure that it gives you the Notification for camera permission microphone And that's it",
+          "Yup"
         ]
       },
       "acceptanceCriteria": [
-        "There are React Query hooks that wrap the new backend poll APIs.",
-        "After creating a poll, the polls list updates without a manual reload.",
-        "After voting, the poll’s displayed vote counts/percentages update without a manual reload.",
-        "Errors are surfaced as clear English messages (e.g., not signed in)."
+        "When an authenticated user clicks \"Go Live\" (or opens /live?startLive=1) and the start form is shown, the app immediately triggers a single browser permission request that includes both Camera and Microphone access.",
+        "The permission request is only triggered for the Go Live preview/start form flow on /live, and does not introduce new permission prompts elsewhere in the app.",
+        "If the user closes the start form or navigates away, any active media tracks created for the preview are stopped and the device indicator turns off (no camera/mic left running)."
       ]
     },
     {
-      "id": "REQ-44",
-      "text": "Add a new Polls page to the app with: (1) a list of existing polls (newest first), (2) a poll creation form for signed-in users (question + 2+ options with add/remove option controls), and (3) a poll voting UI where users can select an option and immediately see percentage results per option. Guests can browse polls but must sign in to create/vote (show an English prompt).",
+      "id": "REQ-53",
+      "text": "If camera and/or microphone permission is denied for the Go Live preview, show a clear custom error message in the preview area that explicitly mentions camera and microphone permissions and tells the user they can still create a live session without the preview.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-4"
+          "msg-4",
+          "msg-7"
         ],
         "quotes": [
-          "Make polls were you ask questions and put this or this and it shows what percentage of ppl like who"
+          "Make sure that it gives you the Notification for camera permission microphone And that's it",
+          "Yup"
         ]
       },
       "acceptanceCriteria": [
-        "A Polls route/page exists and is reachable from the main navigation.",
-        "Guests can view the polls list and per-poll results UI but cannot vote or create; the UI shows an English sign-in prompt.",
-        "Signed-in users can create a poll (question + at least 2 options).",
-        "Signed-in users can vote on a poll; after voting, the UI shows percentages for each option (and handles 0 total votes gracefully).",
-        "The UI prevents creating polls with fewer than 2 non-empty options and prevents voting without selecting an option, with clear English feedback."
+        "When the user denies either Camera or Microphone permission, the Go Live preview area shows an error state (not a silent failure).",
+        "The error message is in English and explicitly references both camera and microphone permissions (example acceptable wording: \"Camera or microphone permission denied. You can still create a live session without the preview.\").",
+        "The existing \"local-only preview\" explanatory copy remains accurate and is still shown when the preview is successfully running."
       ]
     }
   ],
   "constraints": [
-    "Backend must remain a single Motoko actor in backend/main.mo; no additional backend services.",
-    "Do not edit files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or frontend/src/components/ui; compose existing UI components instead.",
+    "Frontend immutable paths must not be modified: frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, and frontend/src/components/ui/*.",
+    "Keep the existing backend live-session behavior metadata-only; do not add real-time streaming or backend media ingest as part of this change.",
     "Use English for all user-facing text."
   ],
   "nonGoals": [
-    "Adding real-time updates (no WebSockets).",
-    "Adding poll comments, poll sharing, or moderation tooling.",
-    "Adding third-party authentication beyond Internet Identity.",
-    "Associating polls to specific videos/shorts unless explicitly requested later."
+    "Implement real-time livestream video/audio broadcast to viewers.",
+    "Add recording, uploading, or storing captured photos/audio from the Go Live preview.",
+    "Add permission prompts to non-Live pages or flows."
   ],
   "imageRequirements": {
     "required": [],
     "edits": []
-  },
-  "userProfileUpdate": {
-    "goalsToAdd": [],
-    "goalsToRemove": [],
-    "preferencesToAdd": [],
-    "preferencesToRemove": [],
-    "miscToAdd": [],
-    "miscToRemove": [],
-    "fieldsToSet": {},
-    "fieldsToDelete": []
   }
 }

@@ -27,7 +27,7 @@ export default function CommentsSection({ mediaTitle }: CommentsSectionProps) {
 
     try {
       await createCommentMutation.mutateAsync({
-        mediaTitle,
+        mediaId: mediaTitle,
         text: commentText.trim(),
       });
       setCommentText('');

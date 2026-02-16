@@ -19,6 +19,12 @@ export interface CommentInput { 'text' : string }
 export type ExternalBlob = Uint8Array;
 export type MediaType = { 'video' : null } |
   { 'short' : null };
+export interface Post {
+  'creator' : Principal,
+  'createdAt' : Time,
+  'caption' : string,
+  'image' : ExternalBlob,
+}
 export interface PublicLiveSession {
   'startTime' : Time,
   'title' : string,
@@ -73,8 +79,10 @@ export interface _SERVICE {
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
   'createComment' : ActorMethod<[string, CommentInput], undefined>,
+  'createPost' : ActorMethod<[ExternalBlob, string], undefined>,
   'endLiveSession' : ActorMethod<[string], undefined>,
   'getAllActiveLiveSessions' : ActorMethod<[], Array<PublicLiveSession>>,
+  'getAllPosts' : ActorMethod<[], Array<Post>>,
   'getAllShorts' : ActorMethod<[], Array<PublicMediaMeta>>,
   'getAllVideos' : ActorMethod<[], Array<PublicMediaMeta>>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
@@ -82,6 +90,7 @@ export interface _SERVICE {
   'getComments' : ActorMethod<[string], Array<Comment>>,
   'getLiveSession' : ActorMethod<[string], PublicLiveSession>,
   'getMediaByTitle' : ActorMethod<[string], PublicMediaMeta>,
+  'getPost' : ActorMethod<[string], Post>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,

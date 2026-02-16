@@ -1,7 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useActor } from './useActor';
-import { ExternalBlob, MediaType, type PublicMediaMeta, type UserProfile, type PublicLiveSession, type Comment, type CommentInput } from '../backend';
+import { ExternalBlob, MediaType, type PublicMediaMeta, type UserProfile, type PublicLiveSession, type Comment, type CommentInput, type Post } from '../backend';
 import type { Poll, PollId } from '../types/poll';
+import { Principal } from '@dfinity/principal';
 
 export function useGetAllVideos() {
   const { actor, isFetching } = useActor();
@@ -62,6 +63,20 @@ export function useGetCallerUserProfile() {
   };
 }
 
+export function useGetUserProfile(user: Principal) {
+  const { actor, isFetching } = useActor();
+
+  return useQuery<UserProfile | null>({
+    queryKey: ['userProfile', user.toString()],
+    queryFn: async () => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.getUserProfile(user);
+    },
+    enabled: !!actor && !isFetching,
+    retry: false,
+  });
+}
+
 export function useSaveCallerUserProfile() {
   const { actor } = useActor();
   const queryClient = useQueryClient();
@@ -69,7 +84,7 @@ export function useSaveCallerUserProfile() {
   return useMutation({
     mutationFn: async (profile: UserProfile) => {
       if (!actor) throw new Error('Actor not available');
-      await actor.saveCallerUserProfile(profile);
+      return actor.saveCallerUserProfile(profile);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['currentUserProfile'] });
@@ -77,127 +92,112 @@ export function useSaveCallerUserProfile() {
   });
 }
 
-interface UploadMediaParams {
-  title: string;
-  mediaType: MediaType;
-  file: File;
-  duration: number;
-  onProgress?: (percentage: number) => void;
-}
-
 export function useUploadMedia() {
   const { actor } = useActor();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ title, mediaType, file, duration, onProgress }: UploadMediaParams) => {
-      if (!actor) {
-        throw new Error('You must be signed in to upload media. Please sign in and try again.');
-      }
-
-      let arrayBuffer: ArrayBuffer;
-      try {
-        arrayBuffer = await file.arrayBuffer();
-      } catch (error) {
-        throw new Error('Failed to read the file. Please try a different file.');
-      }
-
-      const bytes = new Uint8Array(arrayBuffer);
+    mutationFn: async ({
+      title,
+      mediaType,
+      durationSeconds,
+      mediaData,
+    }: {
+      title: string;
+      mediaType: MediaType;
+      durationSeconds: bigint;
+      mediaData: ExternalBlob;
+    }) => {
+      if (!actor) throw new Error('Actor not available');
+      const result = await actor.uploadMedia(title, mediaType, durationSeconds, mediaData);
       
-      let blob = ExternalBlob.fromBytes(bytes);
-      if (onProgress) {
-        blob = blob.withUploadProgress(onProgress);
-      }
-
-      let result;
-      try {
-        result = await actor.uploadMedia(
-          title,
-          mediaType,
-          BigInt(duration),
-          blob
-        );
-      } catch (error) {
-        if (error instanceof Error) {
-          throw new Error(`Upload failed: ${error.message}`);
-        }
-        throw new Error('Upload failed due to a network or server error. Please try again.');
-      }
-
       if (result.__kind__ === 'error') {
-        if (result.error === 'durationExceeded') {
-          throw new Error('Video duration exceeds the 24-hour limit. Please upload a shorter video.');
-        } else if (result.error === 'shortIsTooShort') {
-          throw new Error('Shorts must be at least 3 seconds long. Please upload a longer video.');
-        } else if (result.error === 'storageFailure') {
-          throw new Error('Upload failed due to storage error. Please try again or contact support.');
+        const errorType = result.error;
+        if (errorType === 'durationExceeded') {
+          throw new Error('Video duration exceeds 24 hours');
+        } else if (errorType === 'shortIsTooShort') {
+          throw new Error('Short must be at least 3 seconds long');
         } else {
-          throw new Error('Upload failed. Please try again.');
+          throw new Error('Upload failed');
         }
       }
-
+      
       return result.success;
     },
-    onSuccess: (uploadedMedia) => {
-      // Optimistically update the cache with the new media
-      const queryKey = uploadedMedia.mediaType === 'video' ? ['videos'] : ['shorts'];
-      
-      // Update the specific media type cache
-      queryClient.setQueryData<PublicMediaMeta[]>(queryKey, (old) => {
-        if (!old) return [uploadedMedia];
-        return [uploadedMedia, ...old];
-      });
-
-      // Update the For You feed cache
-      queryClient.setQueryData<PublicMediaMeta[]>(['forYou'], (old) => {
-        if (!old) return [uploadedMedia];
-        return [uploadedMedia, ...old];
-      });
-
-      // Set the individual media cache
-      queryClient.setQueryData(['media', uploadedMedia.title], uploadedMedia);
-
-      // Invalidate to ensure consistency
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['videos'] });
       queryClient.invalidateQueries({ queryKey: ['shorts'] });
-      queryClient.invalidateQueries({ queryKey: ['forYou'] });
+      queryClient.invalidateQueries({ queryKey: ['forYouFeed'] });
     },
   });
 }
 
-// Combined For You feed
 export function useGetForYouFeed() {
   const { actor, isFetching } = useActor();
 
   return useQuery<PublicMediaMeta[]>({
-    queryKey: ['forYou'],
+    queryKey: ['forYouFeed'],
     queryFn: async () => {
       if (!actor) return [];
       const [videos, shorts] = await Promise.all([
         actor.getAllVideos(),
         actor.getAllShorts(),
       ]);
-      // Combine and sort by recency (newest first)
-      return [...videos, ...shorts].sort((a, b) => 
-        Number(b.createdAt - a.createdAt)
-      );
+      
+      // Combine and sort by createdAt (newest first)
+      const combined = [...videos, ...shorts];
+      return combined.sort((a, b) => {
+        const aTime = Number(a.createdAt);
+        const bTime = Number(b.createdAt);
+        return bTime - aTime;
+      });
     },
     enabled: !!actor && !isFetching,
   });
 }
 
-// Live session hooks
+export function useStartLiveSession() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ title, description }: { title: string; description: string }) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.startLiveSession(title, description);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['liveSessions'] });
+    },
+  });
+}
+
+export function useEndLiveSession() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (title: string) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.endLiveSession(title);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['liveSessions'] });
+      queryClient.invalidateQueries({ queryKey: ['liveSession'] });
+    },
+  });
+}
+
 export function useGetAllActiveLiveSessions() {
   const { actor, isFetching } = useActor();
 
   return useQuery<PublicLiveSession[]>({
-    queryKey: ['liveSessions', 'active'],
+    queryKey: ['liveSessions'],
     queryFn: async () => {
       if (!actor) return [];
       return actor.getAllActiveLiveSessions();
     },
     enabled: !!actor && !isFetching,
-    refetchInterval: 5000, // Poll every 5 seconds
+    refetchInterval: 10000,
   });
 }
 
@@ -214,78 +214,35 @@ export function useGetLiveSession(title: string) {
   });
 }
 
-interface StartLiveSessionParams {
-  title: string;
-  description: string;
-}
-
-export function useStartLiveSession() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({ title, description }: StartLiveSessionParams) => {
-      if (!actor) throw new Error('Actor not available');
-      await actor.startLiveSession(title, description);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['liveSessions'] });
-    },
-  });
-}
-
-export function useEndLiveSession() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (title: string) => {
-      if (!actor) throw new Error('Actor not available');
-      await actor.endLiveSession(title);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['liveSessions'] });
-      queryClient.invalidateQueries({ queryKey: ['liveSession'] });
-    },
-  });
-}
-
-// Comment hooks
-export function useGetComments(mediaTitle: string) {
-  const { actor, isFetching } = useActor();
-
-  return useQuery<Comment[]>({
-    queryKey: ['comments', mediaTitle],
-    queryFn: async () => {
-      if (!actor) throw new Error('Unable to load comments. Please check your connection.');
-      return actor.getComments(mediaTitle);
-    },
-    enabled: !!actor && !isFetching && !!mediaTitle,
-  });
-}
-
-interface CreateCommentParams {
-  mediaTitle: string;
-  text: string;
-}
-
 export function useCreateComment() {
   const { actor } = useActor();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ mediaTitle, text }: CreateCommentParams) => {
-      if (!actor) throw new Error('Unable to post comment. Please check your connection.');
+    mutationFn: async ({ mediaId, text }: { mediaId: string; text: string }) => {
+      if (!actor) throw new Error('Actor not available');
       const commentInput: CommentInput = { text };
-      await actor.createComment(mediaTitle, commentInput);
+      return actor.createComment(mediaId, commentInput);
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['comments', variables.mediaTitle] });
+      queryClient.invalidateQueries({ queryKey: ['comments', variables.mediaId] });
     },
   });
 }
 
-// Poll hooks - These will work once the backend is updated
+export function useGetComments(mediaId: string) {
+  const { actor, isFetching } = useActor();
+
+  return useQuery<Comment[]>({
+    queryKey: ['comments', mediaId],
+    queryFn: async () => {
+      if (!actor) return [];
+      return actor.getComments(mediaId);
+    },
+    enabled: !!actor && !isFetching && !!mediaId,
+  });
+}
+
 export function useGetAllPolls() {
   const { actor, isFetching } = useActor();
 
@@ -293,13 +250,8 @@ export function useGetAllPolls() {
     queryKey: ['polls'],
     queryFn: async () => {
       if (!actor) return [];
-      try {
-        // @ts-expect-error - Backend method not yet implemented
-        return await actor.getAllPolls();
-      } catch (error) {
-        console.error('Failed to fetch polls:', error);
-        return [];
-      }
+      // @ts-expect-error - Poll methods not yet in backend interface
+      return actor.getAllPolls();
     },
     enabled: !!actor && !isFetching,
   });
@@ -311,17 +263,12 @@ export function useGetPoll(pollId: PollId) {
   return useQuery<Poll>({
     queryKey: ['poll', pollId],
     queryFn: async () => {
-      if (!actor) throw new Error('Unable to load poll. Please check your connection.');
-      // @ts-expect-error - Backend method not yet implemented
+      if (!actor) throw new Error('Actor not available');
+      // @ts-expect-error - Poll methods not yet in backend interface
       return actor.getPoll(pollId);
     },
     enabled: !!actor && !isFetching && !!pollId,
   });
-}
-
-interface CreatePollParams {
-  question: string;
-  options: string[];
 }
 
 export function useCreatePoll() {
@@ -329,28 +276,10 @@ export function useCreatePoll() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ question, options }: CreatePollParams) => {
-      if (!actor) {
-        throw new Error('You must be signed in to create a poll. Please sign in and try again.');
-      }
-      
-      if (options.length < 2) {
-        throw new Error('A poll must have at least 2 options.');
-      }
-
-      try {
-        // @ts-expect-error - Backend method not yet implemented
-        const pollId = await actor.createPoll(question, options);
-        return pollId;
-      } catch (error) {
-        if (error instanceof Error) {
-          if (error.message.includes('Unauthorized')) {
-            throw new Error('You must be signed in to create a poll.');
-          }
-          throw new Error(`Failed to create poll: ${error.message}`);
-        }
-        throw new Error('Failed to create poll. Please try again.');
-      }
+    mutationFn: async ({ question, options }: { question: string; options: string[] }) => {
+      if (!actor) throw new Error('Actor not available');
+      // @ts-expect-error - Poll methods not yet in backend interface
+      return actor.createPoll(question, options);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['polls'] });
@@ -358,39 +287,46 @@ export function useCreatePoll() {
   });
 }
 
-interface VotePollParams {
-  pollId: PollId;
-  optionIndex: number;
-}
-
 export function useVotePoll() {
   const { actor } = useActor();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ pollId, optionIndex }: VotePollParams) => {
-      if (!actor) {
-        throw new Error('You must be signed in to vote. Please sign in and try again.');
-      }
-
-      try {
-        // @ts-expect-error - Backend method not yet implemented
-        await actor.votePoll(pollId, BigInt(optionIndex));
-      } catch (error) {
-        if (error instanceof Error) {
-          if (error.message.includes('Unauthorized')) {
-            throw new Error('You must be signed in to vote.');
-          }
-          throw new Error(`Failed to vote: ${error.message}`);
-        }
-        throw new Error('Failed to vote. Please try again.');
-      }
+    mutationFn: async ({ pollId, optionIndex }: { pollId: PollId; optionIndex: number }) => {
+      if (!actor) throw new Error('Actor not available');
+      // @ts-expect-error - Poll methods not yet in backend interface
+      return actor.votePoll(pollId, optionIndex);
     },
-    onSuccess: (_, variables) => {
-      // Update the specific poll cache
-      queryClient.invalidateQueries({ queryKey: ['poll', variables.pollId] });
-      // Update the polls list cache
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['polls'] });
+    },
+  });
+}
+
+export function useGetAllPosts() {
+  const { actor, isFetching } = useActor();
+
+  return useQuery<Post[]>({
+    queryKey: ['posts'],
+    queryFn: async () => {
+      if (!actor) return [];
+      return actor.getAllPosts();
+    },
+    enabled: !!actor && !isFetching,
+  });
+}
+
+export function useCreatePost() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ image, caption }: { image: ExternalBlob; caption: string }) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.createPost(image, caption);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
     },
   });
 }

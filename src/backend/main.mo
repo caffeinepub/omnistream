@@ -9,9 +9,9 @@ import Storage "blob-storage/Storage";
 import MixinStorage "blob-storage/Mixin";
 import AccessControl "authorization/access-control";
 import MixinAuthorization "authorization/MixinAuthorization";
-import Migration "migration";
 
-(with migration = Migration.run)
+
+
 actor {
   // Access control system
   let accessControlState = AccessControl.initState();
@@ -98,6 +98,7 @@ actor {
   let liveSessions = Map.empty<Text, LiveSession>();
   let userProfiles = Map.empty<Principal, UserProfile>();
   let commentStore = Map.empty<Text, [Comment]>();
+  let photoPosts = Map.empty<Text, Post>();
 
   public type UploadResult = {
     #success : PublicMediaMeta;
@@ -247,6 +248,41 @@ actor {
     switch (commentStore.get(mediaId)) {
       case (null) { [] };
       case (?comments) { comments };
+    };
+  };
+
+  public type Post = {
+    creator : Principal;
+    image : Storage.ExternalBlob;
+    caption : Text;
+    createdAt : Time.Time;
+  };
+
+  public shared ({ caller }) func createPost(image : Storage.ExternalBlob, caption : Text) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can create posts");
+    };
+
+    let newPost : Post = {
+      creator = caller;
+      image;
+      caption;
+      createdAt = Time.now();
+    };
+
+    let postId = newPost.createdAt.toText();
+    photoPosts.add(postId, newPost);
+  };
+
+  public query ({ caller }) func getAllPosts() : async [Post] {
+    let entries = photoPosts.entries().toArray();
+    entries.map(func((_, post)) { post });
+  };
+
+  public query ({ caller }) func getPost(id : Text) : async Post {
+    switch (photoPosts.get(id)) {
+      case (null) { Runtime.trap("Post not found") };
+      case (?post) { post };
     };
   };
 };

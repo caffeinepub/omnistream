@@ -3,7 +3,7 @@ import { useNavigate } from '@tanstack/react-router';
 import { useInternetIdentity } from '../hooks/useInternetIdentity';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Plus, Video, Film, Radio, X } from 'lucide-react';
+import { Plus, Video, Film, Radio, BarChart3, Image, X } from 'lucide-react';
 
 export default function FloatingActionButton() {
   const navigate = useNavigate();
@@ -16,7 +16,7 @@ export default function FloatingActionButton() {
     return null;
   }
 
-  const handleAction = (action: 'video' | 'short' | 'live') => {
+  const handleAction = (action: 'video' | 'short' | 'live' | 'polls' | 'post') => {
     setIsOpen(false);
     
     if (action === 'video') {
@@ -25,6 +25,10 @@ export default function FloatingActionButton() {
       navigate({ to: '/upload', search: { mediaType: 'short' } });
     } else if (action === 'live') {
       navigate({ to: '/live', search: { startLive: '1' } });
+    } else if (action === 'polls') {
+      navigate({ to: '/polls' });
+    } else if (action === 'post') {
+      navigate({ to: '/posts' });
     }
   };
 
@@ -64,6 +68,22 @@ export default function FloatingActionButton() {
               >
                 <Radio className="h-5 w-5 text-red-500" />
                 <span>Go Live</span>
+              </Button>
+              <Button
+                variant="ghost"
+                className="w-full justify-start gap-3 h-12"
+                onClick={() => handleAction('polls')}
+              >
+                <BarChart3 className="h-5 w-5" />
+                <span>Polls</span>
+              </Button>
+              <Button
+                variant="ghost"
+                className="w-full justify-start gap-3 h-12"
+                onClick={() => handleAction('post')}
+              >
+                <Image className="h-5 w-5" />
+                <span>Post</span>
               </Button>
             </CardContent>
           </Card>

@@ -1,13 +1,11 @@
 # Specification
 
 ## Summary
-**Goal:** Add a Polls feature where users can create polls, vote (one vote per user per poll, changeable), and view percentage results.
+**Goal:** Prompt for camera + microphone permissions when an authenticated user opens the Go Live start form, and show clear messaging if permission is denied.
 
 **Planned changes:**
-- Add backend poll storage and data model (question, 2+ options, vote counts, createdAt, creator principal) plus per-user vote tracking to enforce one vote per principal with vote changes supported.
-- Add backend APIs: createPoll, getPoll, getAllPolls (newest first), and votePoll; restrict create/vote to authenticated users while allowing all users to read.
-- Add safe backend upgrade migration to initialize poll state without losing existing canister data.
-- Add React Query hooks for listing polls, fetching a poll, creating a poll, and voting; ensure cache invalidation/refetch after create/vote with clear English error messages.
-- Add a Polls page/route linked from main navigation: polls list (newest first), creation form for signed-in users (question + dynamic 2+ options), and voting UI that displays per-option percentage results; guests can browse but are prompted to sign in to create/vote.
+- Trigger a combined Camera + Microphone permission request immediately when the Go Live start form/preview mounts on `/live` (including `/live?startLive=1`) for authenticated users.
+- Ensure any media tracks created for the local preview are stopped when the start form is closed or the user navigates away.
+- Add an explicit preview error state/message when camera and/or microphone permission is denied, while still allowing the user to proceed to create a live session without the preview.
 
-**User-visible outcome:** Users can browse polls and results; signed-in users can create new polls and vote (or change their vote) and immediately see updated percentage results.
+**User-visible outcome:** When starting a live session, the browser immediately asks for camera and microphone access for the preview; if access is denied, the preview area explains that camera/mic permission was denied and the user can still create a live session without the preview.

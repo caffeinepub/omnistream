@@ -37,6 +37,12 @@ export type UploadResult = {
 export interface CommentInput {
     text: string;
 }
+export interface Post {
+    creator: Principal;
+    createdAt: Time;
+    caption: string;
+    image: ExternalBlob;
+}
 export interface PublicMediaMeta {
     title: string;
     createdAt: Time;
@@ -61,20 +67,13 @@ export enum UserRole {
     user = "user",
     guest = "guest"
 }
-export type PollId = string;
-export interface Poll {
-    id: PollId;
-    question: string;
-    options: Array<string>;
-    optionVotes: Array<bigint>;
-    createdAt: Time;
-    creator: Principal;
-}
 export interface backendInterface {
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
     createComment(mediaId: string, commentInput: CommentInput): Promise<void>;
+    createPost(image: ExternalBlob, caption: string): Promise<void>;
     endLiveSession(title: string): Promise<void>;
     getAllActiveLiveSessions(): Promise<Array<PublicLiveSession>>;
+    getAllPosts(): Promise<Array<Post>>;
     getAllShorts(): Promise<Array<PublicMediaMeta>>;
     getAllVideos(): Promise<Array<PublicMediaMeta>>;
     getCallerUserProfile(): Promise<UserProfile | null>;
@@ -82,13 +81,10 @@ export interface backendInterface {
     getComments(mediaId: string): Promise<Array<Comment>>;
     getLiveSession(title: string): Promise<PublicLiveSession>;
     getMediaByTitle(title: string): Promise<PublicMediaMeta>;
+    getPost(id: string): Promise<Post>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
     isCallerAdmin(): Promise<boolean>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     startLiveSession(title: string, description: string): Promise<void>;
     uploadMedia(title: string, mediaType: MediaType, durationSeconds: bigint, mediaData: ExternalBlob): Promise<UploadResult>;
-    createPoll(question: string, options: Array<string>): Promise<PollId>;
-    getPoll(pollId: PollId): Promise<Poll>;
-    getAllPolls(): Promise<Array<Poll>>;
-    votePoll(pollId: PollId, optionIndex: bigint): Promise<void>;
 }

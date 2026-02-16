@@ -1,6 +1,6 @@
 import { useState, ChangeEvent, useEffect } from 'react';
 import { useUploadMedia } from '../hooks/useQueries';
-import { MediaType } from '../backend';
+import { MediaType, ExternalBlob } from '../backend';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -118,16 +118,26 @@ export default function UploadForm({ onSuccess, initialMediaType }: UploadFormPr
     }
 
     try {
+      // Convert file to bytes
+      const arrayBuffer = await file.arrayBuffer();
+      const bytes = new Uint8Array(arrayBuffer);
+      
+      // Create ExternalBlob with upload progress tracking
+      const mediaData = ExternalBlob.fromBytes(bytes).withUploadProgress((percentage) => {
+        setUploadProgress(percentage);
+      });
+
       const result = await uploadMutation.mutateAsync({
         title: title.trim(),
         mediaType: mediaType === 'video' ? MediaType.video : MediaType.short_,
-        file,
-        duration,
-        onProgress: setUploadProgress,
+        durationSeconds: BigInt(duration),
+        mediaData,
       });
+      
       onSuccess(result.title);
     } catch (error) {
       console.error('Upload failed:', error);
+      setUploadProgress(0);
     }
   };
 

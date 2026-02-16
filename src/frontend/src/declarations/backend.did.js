@@ -25,6 +25,7 @@ export const UserRole = IDL.Variant({
   'guest' : IDL.Null,
 });
 export const CommentInput = IDL.Record({ 'text' : IDL.Text });
+export const ExternalBlob = IDL.Vec(IDL.Nat8);
 export const Time = IDL.Int;
 export const PublicLiveSession = IDL.Record({
   'startTime' : Time,
@@ -33,7 +34,12 @@ export const PublicLiveSession = IDL.Record({
   'isActive' : IDL.Bool,
   'streamer' : IDL.Principal,
 });
-export const ExternalBlob = IDL.Vec(IDL.Nat8);
+export const Post = IDL.Record({
+  'creator' : IDL.Principal,
+  'createdAt' : Time,
+  'caption' : IDL.Text,
+  'image' : ExternalBlob,
+});
 export const MediaType = IDL.Variant({
   'video' : IDL.Null,
   'short' : IDL.Null,
@@ -91,12 +97,14 @@ export const idlService = IDL.Service({
   '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
   'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
   'createComment' : IDL.Func([IDL.Text, CommentInput], [], []),
+  'createPost' : IDL.Func([ExternalBlob, IDL.Text], [], []),
   'endLiveSession' : IDL.Func([IDL.Text], [], []),
   'getAllActiveLiveSessions' : IDL.Func(
       [],
       [IDL.Vec(PublicLiveSession)],
       ['query'],
     ),
+  'getAllPosts' : IDL.Func([], [IDL.Vec(Post)], ['query']),
   'getAllShorts' : IDL.Func([], [IDL.Vec(PublicMediaMeta)], ['query']),
   'getAllVideos' : IDL.Func([], [IDL.Vec(PublicMediaMeta)], ['query']),
   'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
@@ -104,6 +112,7 @@ export const idlService = IDL.Service({
   'getComments' : IDL.Func([IDL.Text], [IDL.Vec(Comment)], ['query']),
   'getLiveSession' : IDL.Func([IDL.Text], [PublicLiveSession], ['query']),
   'getMediaByTitle' : IDL.Func([IDL.Text], [PublicMediaMeta], ['query']),
+  'getPost' : IDL.Func([IDL.Text], [Post], ['query']),
   'getUserProfile' : IDL.Func(
       [IDL.Principal],
       [IDL.Opt(UserProfile)],
@@ -139,6 +148,7 @@ export const idlFactory = ({ IDL }) => {
     'guest' : IDL.Null,
   });
   const CommentInput = IDL.Record({ 'text' : IDL.Text });
+  const ExternalBlob = IDL.Vec(IDL.Nat8);
   const Time = IDL.Int;
   const PublicLiveSession = IDL.Record({
     'startTime' : Time,
@@ -147,7 +157,12 @@ export const idlFactory = ({ IDL }) => {
     'isActive' : IDL.Bool,
     'streamer' : IDL.Principal,
   });
-  const ExternalBlob = IDL.Vec(IDL.Nat8);
+  const Post = IDL.Record({
+    'creator' : IDL.Principal,
+    'createdAt' : Time,
+    'caption' : IDL.Text,
+    'image' : ExternalBlob,
+  });
   const MediaType = IDL.Variant({ 'video' : IDL.Null, 'short' : IDL.Null });
   const PublicMediaMeta = IDL.Record({
     'title' : IDL.Text,
@@ -202,12 +217,14 @@ export const idlFactory = ({ IDL }) => {
     '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
     'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
     'createComment' : IDL.Func([IDL.Text, CommentInput], [], []),
+    'createPost' : IDL.Func([ExternalBlob, IDL.Text], [], []),
     'endLiveSession' : IDL.Func([IDL.Text], [], []),
     'getAllActiveLiveSessions' : IDL.Func(
         [],
         [IDL.Vec(PublicLiveSession)],
         ['query'],
       ),
+    'getAllPosts' : IDL.Func([], [IDL.Vec(Post)], ['query']),
     'getAllShorts' : IDL.Func([], [IDL.Vec(PublicMediaMeta)], ['query']),
     'getAllVideos' : IDL.Func([], [IDL.Vec(PublicMediaMeta)], ['query']),
     'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
@@ -215,6 +232,7 @@ export const idlFactory = ({ IDL }) => {
     'getComments' : IDL.Func([IDL.Text], [IDL.Vec(Comment)], ['query']),
     'getLiveSession' : IDL.Func([IDL.Text], [PublicLiveSession], ['query']),
     'getMediaByTitle' : IDL.Func([IDL.Text], [PublicMediaMeta], ['query']),
+    'getPost' : IDL.Func([IDL.Text], [Post], ['query']),
     'getUserProfile' : IDL.Func(
         [IDL.Principal],
         [IDL.Opt(UserProfile)],
