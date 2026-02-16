@@ -1,9 +1,8 @@
-import { useRef } from 'react';
 import { useParams, Link, useNavigate } from '@tanstack/react-router';
 import { useGetMediaByTitle } from '../hooks/useQueries';
 import { useActor } from '../hooks/useActor';
-import VideoPlayer, { VideoPlayerRef } from '../components/VideoPlayer';
-import ViewerTimer from '../components/ViewerTimer';
+import VideoPlayer from '../components/VideoPlayer';
+import CommentsSection from '../components/CommentsSection';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Loader2, Calendar, Clock, Upload } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -13,11 +12,6 @@ export default function WatchPage() {
   const navigate = useNavigate();
   const { actor } = useActor();
   const { data: media, isLoading, error } = useGetMediaByTitle(title);
-  const playerRef = useRef<VideoPlayerRef>(null);
-
-  const handleTimerEnd = () => {
-    playerRef.current?.pause();
-  };
 
   const handleUploadClick = () => {
     if (media) {
@@ -94,42 +88,29 @@ export default function WatchPage() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-4">
-          <VideoPlayer
-            ref={playerRef}
-            src={media.mediaData.getDirectURL()}
-            title={media.title}
-          />
-          <div className="space-y-3">
-            <h1 className="text-2xl font-bold">{media.title}</h1>
-            <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-              <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4" />
-                {formatDate(media.createdAt)}
-              </div>
-              <div className="flex items-center gap-2">
-                <Clock className="h-4 w-4" />
-                {formatDuration(Number(media.durationSeconds))}
-              </div>
-              <div className="px-3 py-1 rounded-full bg-gradient-to-r from-cyan-500/10 to-purple-500/10 border border-cyan-500/20">
-                {media.mediaType === 'video' ? 'Video' : 'Short'}
-              </div>
+      <div className="space-y-6">
+        <VideoPlayer
+          src={media.mediaData.getDirectURL()}
+          title={media.title}
+        />
+        <div className="space-y-3">
+          <h1 className="text-2xl font-bold">{media.title}</h1>
+          <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <Calendar className="h-4 w-4" />
+              {formatDate(media.createdAt)}
+            </div>
+            <div className="flex items-center gap-2">
+              <Clock className="h-4 w-4" />
+              {formatDuration(Number(media.durationSeconds))}
+            </div>
+            <div className="px-3 py-1 rounded-full bg-gradient-to-r from-cyan-500/10 to-purple-500/10 border border-cyan-500/20">
+              {media.mediaType === 'video' ? 'Video' : 'Short'}
             </div>
           </div>
-
-          {/* Mobile timer - shown below video on small screens */}
-          <div className="lg:hidden">
-            <ViewerTimer onTimerEnd={handleTimerEnd} />
-          </div>
         </div>
 
-        {/* Desktop timer - sticky sidebar on large screens */}
-        <div className="hidden lg:block lg:col-span-1">
-          <div className="sticky top-4">
-            <ViewerTimer onTimerEnd={handleTimerEnd} />
-          </div>
-        </div>
+        <CommentsSection mediaTitle={media.title} />
       </div>
     </div>
   );

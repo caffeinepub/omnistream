@@ -2,10 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-add-the-internet-computer-custom-domain-allowlist-file-to-the-frontend-static-assets-so-the-deployed-assets-canister-can-serve-omnistream-on-the-custom-domain-ommistream-net",
-      "featureTitle": "Add the Internet Computer custom-domain allowlist file to the frontend static assets so the deployed assets canister can serve OmniStream on the custom domain ommistream.net.",
+      "featureId": "feature-remove-the-viewer-timer-feature-entirely-from-the-watch-page-ui-so-no-timer-controls-timer-sidebar-or-timer-related-text-are-shown-on-mobile-or-desktop",
+      "featureTitle": "Remove the Viewer Timer feature entirely from the Watch page UI so no timer controls, timer sidebar, or timer-related text are shown on mobile or desktop.",
       "files": [
-        "frontend/public/.well-known/ic-domains"
+        "frontend/src/pages/WatchPage.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -17,15 +17,15 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-30"
+        "REQ-36"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-update-the-frontend-environment-configuration-example-to-include-the-recommended-internet-identity-derivation-origin-setting-for-the-custom-domain-ommistream-net",
-      "featureTitle": "Update the frontend environment configuration example to include the recommended Internet Identity derivation origin setting for the custom domain ommistream.net.",
+      "featureId": "feature-add-react-query-hooks-to-fetch-and-post-comments-via-the-backend-actor-and-ensure-caches-update-immediately-after-posting-invalidate-refetch-the-relevant-comments-query-for-that-media-title",
+      "featureTitle": "Add React Query hooks to fetch and post comments via the backend actor, and ensure caches update immediately after posting (invalidate/refetch the relevant comments query for that media title).",
       "files": [
-        "frontend/.env.example"
+        "frontend/src/hooks/useQueries.ts"
       ],
       "components": [
         "authorization@4.0.0",
@@ -37,15 +37,16 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-32"
+        "REQ-38"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-improve-the-backend-unavailable-error-banner-guidance-so-it-mentions-both-the-icp0-io-canister-url-format-and-the-custom-domain-ommistream-net-as-valid-access-paths-and-provides-a-clear-english-hint-that-a-misconfigured-custom-domain-can-cause-access-failures",
-      "featureTitle": "Improve the backend-unavailable error banner guidance so it mentions both the icp0.io canister URL format and the custom domain ommistream.net as valid access paths, and provides a clear English hint that a misconfigured custom domain can cause access failures.",
+      "featureId": "feature-add-a-comments-section-under-the-media-on-the-watch-page-that-a-lists-existing-comments-and-b-allows-signed-in-users-to-post-a-new-comment-guests-can-read-comments-but-must-sign-in-to-post-show-an-english-sign-in-prompt-and-disable-hide-the-submit-action-for-guests",
+      "featureTitle": "Add a comments section under the media on the Watch page that (a) lists existing comments and (b) allows signed-in users to post a new comment. Guests can read comments but must sign in to post (show an English sign-in prompt and disable/hide the submit action for guests).",
       "files": [
-        "frontend/src/components/BackendUnavailableBanner.tsx"
+        "frontend/src/components/CommentsSection.tsx",
+        "frontend/src/pages/WatchPage.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -57,7 +58,7 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-33"
+        "REQ-39"
       ],
       "confidence": "high"
     }

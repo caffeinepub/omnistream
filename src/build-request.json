@@ -1,93 +1,93 @@
 {
   "kind": "build_request",
-  "title": "Configure and document OmniStream custom domain (ommistream.net) on IC mainnet",
-  "priority": "high",
+  "title": "Add Watch-page comments and remove Viewer Timer completely",
+  "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-30",
-      "text": "Add the Internet Computer custom-domain allowlist file to the frontend static assets so the deployed assets canister can serve OmniStream on the custom domain ommistream.net.",
+      "id": "REQ-36",
+      "text": "Remove the Viewer Timer feature entirely from the Watch page UI so no timer controls, timer sidebar, or timer-related text are shown on mobile or desktop.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-15"
+          "msg-recent-12"
         ],
         "quotes": [
-          "Make it ommistream.net"
+          "So add comments and what i said earlier but no timer"
         ]
       },
       "acceptanceCriteria": [
-        "A static file exists at frontend/public/.well-known/ic-domains (exact path, no extension).",
-        "The file content includes the domain \"ommistream.net\" on its own line.",
-        "The file content includes the domain \"www.ommistream.net\" on its own line.",
-        "After deploying the frontend assets canister to mainnet, fetching https://<FRONTEND_ASSETS_CANISTER_ID>.icp0.io/.well-known/ic-domains returns the expected domain list (via browser or curl)."
+        "When viewing any media on the Watch page, there is no Viewer Timer card, no timer inputs/buttons, and no 'Viewer Timer' label anywhere in the rendered UI.",
+        "The Watch page still plays media normally and shows title/date/duration metadata without errors.",
+        "There is no timer-related logic executed from WatchPage (e.g., no onTimerEnd/pause callback wiring from a timer component)."
       ]
     },
     {
-      "id": "REQ-31",
-      "text": "Update the repo-local mainnet deployment documentation to include a dedicated section for configuring OmniStream to be reachable at the custom domain ommistream.net, including the exact steps a user must perform outside the repo (DNS) and inside the repo (deploying the .well-known/ic-domains asset). Use English for all user-facing text.",
-      "target": "frontend",
+      "id": "REQ-37",
+      "text": "Implement backend comment storage and APIs so comments can be created and fetched per media item (keyed by the Watch page media title). Include comment text, author principal, and createdAt timestamp in the stored record, and return comments in reverse-chronological order (newest first).",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-15"
+          "msg-recent-12"
         ],
         "quotes": [
-          "Make it ommistream.net"
+          "So add comments and what i said earlier but no timer"
         ]
       },
       "acceptanceCriteria": [
-        "frontend/docs/ic-mainnet-deployment.md contains a clearly titled section for custom domain setup (ommistream.net).",
-        "The doc explains that the custom domain points to the frontend assets canister (not the backend canister).",
-        "The doc describes how to obtain the frontend assets canister ID after deployment and how to form the canister URL using icp0.io.",
-        "The doc includes explicit examples of correct hash-routing URLs (e.g., https://ommistream.net/#/ , https://ommistream.net/#/watch/<title>).",
-        "The doc includes explicit DNS instructions (record type and target) expressed without assuming a specific registrar UI, and indicates that DNS propagation can take time.",
-        "The doc explicitly states that this repo/code change cannot perform the real-world DNS update automatically."
+        "Backend exposes a query method to fetch comments for a given media title and returns an empty list when there are no comments.",
+        "Backend exposes an authenticated method to add a comment for a given media title; unauthenticated callers are rejected consistently with existing access-control behavior.",
+        "Each returned comment includes: text, author (Principal), and createdAt (Time).",
+        "Fetching comments returns newest-first ordering."
       ]
     },
     {
-      "id": "REQ-32",
-      "text": "Update the frontend environment configuration example to include the recommended Internet Identity derivation origin setting for the custom domain ommistream.net.",
+      "id": "REQ-38",
+      "text": "Add React Query hooks to fetch and post comments via the backend actor, and ensure caches update immediately after posting (invalidate/refetch the relevant comments query for that media title).",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-16"
+          "msg-recent-12"
         ],
         "quotes": [
-          "Now do it know"
+          "So add comments and what i said earlier but no timer"
         ]
       },
       "acceptanceCriteria": [
-        "frontend/.env.example includes an uncommented or clearly documented example line showing II_DERIVATION_ORIGIN=https://ommistream.net (or an explicit instruction to set it to that value when using the custom domain).",
-        "The added/updated comments explain, in English, that II_DERIVATION_ORIGIN is relevant when using a custom domain so user principals remain consistent across domains."
+        "A Watch-page comments query is keyed by media title (e.g., ['comments', title]) and refetches when the title changes.",
+        "Posting a comment triggers an update so the new comment appears without requiring a manual page refresh.",
+        "If the backend actor is unavailable, the comments UI shows a clear English error message instead of failing silently."
       ]
     },
     {
-      "id": "REQ-33",
-      "text": "Improve the backend-unavailable error banner guidance so it mentions both the icp0.io canister URL format and the custom domain ommistream.net as valid access paths, and provides a clear English hint that a misconfigured custom domain can cause access failures.",
+      "id": "REQ-39",
+      "text": "Add a comments section under the media on the Watch page that (a) lists existing comments and (b) allows signed-in users to post a new comment. Guests can read comments but must sign in to post (show an English sign-in prompt and disable/hide the submit action for guests).",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-15"
+          "msg-recent-12"
         ],
         "quotes": [
-          "Now deploy the url"
+          "So add comments and what i said earlier but no timer"
         ]
       },
       "acceptanceCriteria": [
-        "frontend/src/components/BackendUnavailableBanner.tsx displays English guidance that includes both (1) the current icp0.io hostname when applicable and (2) a mention of https://ommistream.net as the intended custom domain.",
-        "If the current hostname is not an icp0.io domain, the banner text includes a clear suggestion to try the icp0.io canister URL as a fallback and to verify custom-domain configuration.",
-        "All user-facing text added/changed is in English."
+        "The Watch page shows a 'Comments' section beneath the video player/metadata area.",
+        "If there are no comments, the UI displays an English empty state such as 'No comments yet. Be the first to comment.'",
+        "Signed-in users see a text input (textarea) and a 'Post comment' button; submitting posts the comment and clears the input on success.",
+        "Guests can see the comment list (and empty state), but cannot post; the UI shows an English message such as 'Sign in to post a comment.'",
+        "Posted comments render with their text and a readable timestamp; author display uses the commenter profile name when available, otherwise a safe fallback label in English."
       ]
     }
   ],
   "constraints": [
     "Backend must remain a single Motoko actor in backend/main.mo; do not introduce additional backend services.",
-    "Do not edit any files under frontend/src/components/ui or any other paths listed as immutable (compose them instead).",
-    "Do not claim to have performed real-world DNS or registrar configuration; only implement repo changes and documentation."
+    "Do not edit files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or frontend/src/components/ui; compose existing components instead.",
+    "Use English for all user-facing UI text related to comments and any error/empty states."
   ],
   "nonGoals": [
-    "Actually buying the domain ommistream.net or configuring the registrar/DNS provider on the user’s behalf.",
-    "Issuing or managing TLS certificates outside what IC boundary nodes provide for supported custom domains.",
-    "Changing application features unrelated to custom-domain accessibility (feeds, uploads, watch UI, live sessions)."
+    "Threaded replies, @mentions, comment likes/reactions, or moderation tooling.",
+    "Editing or deleting comments.",
+    "Real-time comments (no WebSockets); standard fetch/refetch behavior via React Query only."
   ],
   "imageRequirements": {
     "required": [],

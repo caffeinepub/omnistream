@@ -89,10 +89,6 @@ export class ExternalBlob {
         return this;
     }
 }
-export interface _CaffeineStorageRefillResult {
-    success?: boolean;
-    topped_up_amount?: bigint;
-}
 export interface PublicLiveSession {
     startTime: Time;
     title: string;
@@ -101,22 +97,17 @@ export interface PublicLiveSession {
     streamer: Principal;
 }
 export type Time = bigint;
+export interface Comment {
+    createdAt: Time;
+    text: string;
+    author: Principal;
+}
 export interface _CaffeineStorageRefillInformation {
     proposed_top_up_amount?: bigint;
-}
-export interface PublicMediaMeta {
-    title: string;
-    createdAt: Time;
-    durationSeconds: bigint;
-    mediaData: ExternalBlob;
-    mediaType: MediaType;
 }
 export interface _CaffeineStorageCreateCertificateResult {
     method: string;
     blob_hash: string;
-}
-export interface UserProfile {
-    name: string;
 }
 export type UploadResult = {
     __kind__: "error";
@@ -125,6 +116,23 @@ export type UploadResult = {
     __kind__: "success";
     success: PublicMediaMeta;
 };
+export interface CommentInput {
+    text: string;
+}
+export interface PublicMediaMeta {
+    title: string;
+    createdAt: Time;
+    durationSeconds: bigint;
+    mediaData: ExternalBlob;
+    mediaType: MediaType;
+}
+export interface _CaffeineStorageRefillResult {
+    success?: boolean;
+    topped_up_amount?: bigint;
+}
+export interface UserProfile {
+    name: string;
+}
 export enum MediaType {
     video = "video",
     short_ = "short"
@@ -148,12 +156,14 @@ export interface backendInterface {
     _caffeineStorageUpdateGatewayPrincipals(): Promise<void>;
     _initializeAccessControlWithSecret(userSecret: string): Promise<void>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
+    createComment(mediaId: string, commentInput: CommentInput): Promise<void>;
     endLiveSession(title: string): Promise<void>;
     getAllActiveLiveSessions(): Promise<Array<PublicLiveSession>>;
     getAllShorts(): Promise<Array<PublicMediaMeta>>;
     getAllVideos(): Promise<Array<PublicMediaMeta>>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
+    getComments(mediaId: string): Promise<Array<Comment>>;
     getLiveSession(title: string): Promise<PublicLiveSession>;
     getMediaByTitle(title: string): Promise<PublicMediaMeta>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
@@ -277,6 +287,20 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async createComment(arg0: string, arg1: CommentInput): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.createComment(arg0, arg1);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.createComment(arg0, arg1);
+            return result;
+        }
+    }
     async endLiveSession(arg0: string): Promise<void> {
         if (this.processError) {
             try {
@@ -359,6 +383,20 @@ export class Backend implements backendInterface {
         } else {
             const result = await this.actor.getCallerUserRole();
             return from_candid_UserRole_n17(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getComments(arg0: string): Promise<Array<Comment>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getComments(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getComments(arg0);
+            return result;
         }
     }
     async getLiveSession(arg0: string): Promise<PublicLiveSession> {

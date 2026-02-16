@@ -10,6 +10,12 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
+export interface Comment {
+  'createdAt' : Time,
+  'text' : string,
+  'author' : Principal,
+}
+export interface CommentInput { 'text' : string }
 export type ExternalBlob = Uint8Array;
 export type MediaType = { 'video' : null } |
   { 'short' : null };
@@ -66,12 +72,14 @@ export interface _SERVICE {
   '_caffeineStorageUpdateGatewayPrincipals' : ActorMethod<[], undefined>,
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
+  'createComment' : ActorMethod<[string, CommentInput], undefined>,
   'endLiveSession' : ActorMethod<[string], undefined>,
   'getAllActiveLiveSessions' : ActorMethod<[], Array<PublicLiveSession>>,
   'getAllShorts' : ActorMethod<[], Array<PublicMediaMeta>>,
   'getAllVideos' : ActorMethod<[], Array<PublicMediaMeta>>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
+  'getComments' : ActorMethod<[string], Array<Comment>>,
   'getLiveSession' : ActorMethod<[string], PublicLiveSession>,
   'getMediaByTitle' : ActorMethod<[string], PublicMediaMeta>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,

@@ -1,4 +1,4 @@
-import { useState, useRef, ChangeEvent, useEffect } from 'react';
+import { useState, ChangeEvent, useEffect } from 'react';
 import { useUploadMedia } from '../hooks/useQueries';
 import { MediaType } from '../backend';
 import { Button } from '@/components/ui/button';
@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Upload, Video, Film, Clock, AlertCircle } from 'lucide-react';
+import { Upload, Video, Film, Clock, AlertCircle, Loader2, CheckCircle } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 
 interface UploadFormProps {
@@ -23,8 +23,9 @@ export default function UploadForm({ onSuccess, initialMediaType }: UploadFormPr
   const [mediaType, setMediaType] = useState<'video' | 'short'>(initialMediaType || 'video');
   const [file, setFile] = useState<File | null>(null);
   const [duration, setDuration] = useState<number | null>(null);
+  const [durationLoading, setDurationLoading] = useState(false);
+  const [durationError, setDurationError] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const videoRef = useRef<HTMLVideoElement>(null);
   const uploadMutation = useUploadMedia();
 
   useEffect(() => {
@@ -37,13 +38,41 @@ export default function UploadForm({ onSuccess, initialMediaType }: UploadFormPr
     const selectedFile = e.target.files?.[0];
     if (selectedFile) {
       setFile(selectedFile);
+      setDuration(null);
+      setDurationError(null);
+      setDurationLoading(true);
+
       const video = document.createElement('video');
       video.preload = 'metadata';
+      
       video.onloadedmetadata = () => {
-        setDuration(Math.floor(video.duration));
+        const detectedDuration = Math.floor(video.duration);
+        
+        if (!detectedDuration || detectedDuration === 0 || !isFinite(detectedDuration)) {
+          setDurationError('Could not read video duration. Please try a different file.');
+          setDuration(null);
+        } else {
+          setDuration(detectedDuration);
+          setDurationError(null);
+        }
+        
+        setDurationLoading(false);
         URL.revokeObjectURL(video.src);
       };
+
+      video.onerror = () => {
+        setDurationError('Failed to load video metadata. Please try a different file.');
+        setDuration(null);
+        setDurationLoading(false);
+        URL.revokeObjectURL(video.src);
+      };
+
       video.src = URL.createObjectURL(selectedFile);
+    } else {
+      setFile(null);
+      setDuration(null);
+      setDurationError(null);
+      setDurationLoading(false);
     }
   };
 
@@ -59,14 +88,31 @@ export default function UploadForm({ onSuccess, initialMediaType }: UploadFormPr
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!file || !duration || !title.trim()) return;
+    
+    if (!title.trim()) {
+      return;
+    }
 
-    // Client-side validation for 24-hour limit
+    if (!file) {
+      return;
+    }
+
+    if (durationLoading) {
+      return;
+    }
+
+    if (durationError) {
+      return;
+    }
+
+    if (duration === null) {
+      return;
+    }
+
     if (duration > ONE_DAY_SECONDS) {
       return;
     }
 
-    // Client-side validation for 3-second minimum for shorts
     if (mediaType === 'short' && duration < MIN_SHORT_SECONDS) {
       return;
     }
@@ -88,7 +134,28 @@ export default function UploadForm({ onSuccess, initialMediaType }: UploadFormPr
   const isUploading = uploadMutation.isPending;
   const durationExceeded = duration !== null && duration > ONE_DAY_SECONDS;
   const shortTooShort = mediaType === 'short' && duration !== null && duration < MIN_SHORT_SECONDS;
-  const canSubmit = title.trim() && file && duration && !isUploading && !durationExceeded && !shortTooShort;
+  const canSubmit = 
+    title.trim() && 
+    file && 
+    !durationLoading && 
+    !durationError && 
+    duration !== null && 
+    duration > 0 &&
+    !isUploading && 
+    !durationExceeded && 
+    !shortTooShort;
+
+  const getSubmitButtonText = () => {
+    if (isUploading) return 'Uploading...';
+    if (!title.trim()) return 'Enter Title';
+    if (!file) return 'Select File';
+    if (durationLoading) return 'Detecting Duration...';
+    if (durationError) return 'Invalid File';
+    if (duration === null) return 'Waiting for Duration';
+    if (durationExceeded) return 'Duration Exceeds 24h Limit';
+    if (shortTooShort) return 'Short Too Short (Min 3s)';
+    return 'Upload';
+  };
 
   return (
     <Card className="max-w-2xl mx-auto">
@@ -152,19 +219,37 @@ export default function UploadForm({ onSuccess, initialMediaType }: UploadFormPr
             />
           </div>
 
-          {duration !== null && (
+          {durationLoading && (
+            <Alert>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              <AlertDescription>
+                Detecting video duration, please wait...
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {durationError && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                <strong>Duration Error:</strong> {durationError}
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {duration !== null && !durationError && (
             <Alert variant={durationExceeded || shortTooShort ? 'destructive' : 'default'}>
-              <Clock className="h-4 w-4" />
+              <CheckCircle className="h-4 w-4" />
               <AlertDescription>
                 Duration: <strong>{formatDuration(duration)}</strong>
                 {durationExceeded && (
-                  <span className="block mt-1 font-semibold">
-                    This video exceeds the 24-hour limit and cannot be uploaded.
+                  <span className="block mt-2 font-semibold text-destructive">
+                    ⚠️ This video exceeds the 24-hour limit and cannot be uploaded. Please select a shorter video.
                   </span>
                 )}
                 {shortTooShort && (
-                  <span className="block mt-1 font-semibold">
-                    Shorts must be at least 3 seconds long.
+                  <span className="block mt-2 font-semibold text-destructive">
+                    ⚠️ Shorts must be at least 3 seconds long. Please select a longer video or upload as a regular video instead.
                   </span>
                 )}
               </AlertDescription>
@@ -175,9 +260,10 @@ export default function UploadForm({ onSuccess, initialMediaType }: UploadFormPr
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
+                <strong>Upload Failed:</strong>{' '}
                 {uploadMutation.error instanceof Error
                   ? uploadMutation.error.message
-                  : 'Upload failed. Please try again.'}
+                  : 'An unexpected error occurred. Please try again.'}
               </AlertDescription>
             </Alert>
           )}
@@ -193,13 +279,7 @@ export default function UploadForm({ onSuccess, initialMediaType }: UploadFormPr
           )}
 
           <Button type="submit" disabled={!canSubmit} className="w-full">
-            {isUploading 
-              ? 'Uploading...' 
-              : durationExceeded 
-              ? 'Duration Exceeds Limit' 
-              : shortTooShort
-              ? 'Short Too Short'
-              : 'Upload'}
+            {getSubmitButtonText()}
           </Button>
         </form>
       </CardContent>

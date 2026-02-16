@@ -22,6 +22,21 @@ export interface PublicLiveSession {
     streamer: Principal;
 }
 export type Time = bigint;
+export interface Comment {
+    createdAt: Time;
+    text: string;
+    author: Principal;
+}
+export type UploadResult = {
+    __kind__: "error";
+    error: UploadError;
+} | {
+    __kind__: "success";
+    success: PublicMediaMeta;
+};
+export interface CommentInput {
+    text: string;
+}
 export interface PublicMediaMeta {
     title: string;
     createdAt: Time;
@@ -32,13 +47,6 @@ export interface PublicMediaMeta {
 export interface UserProfile {
     name: string;
 }
-export type UploadResult = {
-    __kind__: "error";
-    error: UploadError;
-} | {
-    __kind__: "success";
-    success: PublicMediaMeta;
-};
 export enum MediaType {
     video = "video",
     short_ = "short"
@@ -55,12 +63,14 @@ export enum UserRole {
 }
 export interface backendInterface {
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
+    createComment(mediaId: string, commentInput: CommentInput): Promise<void>;
     endLiveSession(title: string): Promise<void>;
     getAllActiveLiveSessions(): Promise<Array<PublicLiveSession>>;
     getAllShorts(): Promise<Array<PublicMediaMeta>>;
     getAllVideos(): Promise<Array<PublicMediaMeta>>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
+    getComments(mediaId: string): Promise<Array<Comment>>;
     getLiveSession(title: string): Promise<PublicLiveSession>;
     getMediaByTitle(title: string): Promise<PublicMediaMeta>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;

@@ -1,17 +1,19 @@
 import Map "mo:core/Map";
+import Iter "mo:core/Iter";
 import Text "mo:core/Text";
 import Time "mo:core/Time";
-import List "mo:core/List";
+import Array "mo:core/Array";
 import Runtime "mo:core/Runtime";
 import Principal "mo:core/Principal";
-import Iter "mo:core/Iter";
 import Storage "blob-storage/Storage";
 import MixinStorage "blob-storage/Mixin";
 import AccessControl "authorization/access-control";
 import MixinAuthorization "authorization/MixinAuthorization";
+import Migration "migration";
 
+(with migration = Migration.run)
 actor {
-  // Initialize the access control system
+  // Access control system
   let accessControlState = AccessControl.initState();
   include MixinAuthorization(accessControlState);
 
@@ -52,12 +54,10 @@ actor {
     name : Text;
   };
 
-  // Go live types
   public type LiveSession = {
     title : Text;
     description : Text;
     startTime : Time.Time;
-    // videoData will have to be handled externally due to size
     isActive : Bool;
     streamer : Principal;
   };
@@ -82,12 +82,22 @@ actor {
     streamer : Principal;
   };
 
-  // Storage integration
+  public type Comment = {
+    author : Principal;
+    text : Text;
+    createdAt : Time.Time;
+  };
+
+  public type CommentInput = {
+    text : Text;
+  };
+
   include MixinStorage();
 
   let mediaStorage = Map.empty<Text, MediaMeta>();
   let liveSessions = Map.empty<Text, LiveSession>();
   let userProfiles = Map.empty<Principal, UserProfile>();
+  let commentStore = Map.empty<Text, [Comment]>();
 
   public type UploadResult = {
     #success : PublicMediaMeta;
@@ -102,7 +112,6 @@ actor {
 
   let ONE_DAY_SECONDS = 24 * 60 * 60;
 
-  // User profile management
   public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can access profiles");
@@ -124,7 +133,6 @@ actor {
     userProfiles.add(caller, profile);
   };
 
-  // Upload new video or short, validating duration
   public shared ({ caller }) func uploadMedia(title : Text, mediaType : MediaType, durationSeconds : Nat, mediaData : Storage.ExternalBlob) : async UploadResult {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can upload media");
@@ -155,17 +163,14 @@ actor {
     #success(MediaMeta.toPublic(meta));
   };
 
-  // Retrieve all videos - public access (no authorization check needed)
   public query ({ caller }) func getAllVideos() : async [PublicMediaMeta] {
-    mediaStorage.entries().toList<(Text, MediaMeta)>().filter(func((_, meta)) { meta.mediaType == #video }).map<(Text, MediaMeta), PublicMediaMeta>(func((_, meta)) { MediaMeta.toPublic(meta) }).toArray();
+    mediaStorage.entries().toArray().filter(func((_, meta)) { meta.mediaType == #video }).map(func((_, meta)) { MediaMeta.toPublic(meta) });
   };
 
-  // Retrieve all shorts - public access (no authorization check needed)
   public query ({ caller }) func getAllShorts() : async [PublicMediaMeta] {
-    mediaStorage.entries().toList<(Text, MediaMeta)>().filter(func((_, meta)) { meta.mediaType == #short }).map<(Text, MediaMeta), PublicMediaMeta>(func((_, meta)) { MediaMeta.toPublic(meta) }).toArray();
+    mediaStorage.entries().toArray().filter(func((_, meta)) { meta.mediaType == #short }).map(func((_, meta)) { MediaMeta.toPublic(meta) });
   };
 
-  // Get media by title - public access (no authorization check needed)
   public query ({ caller }) func getMediaByTitle(title : Text) : async PublicMediaMeta {
     switch (mediaStorage.get(title)) {
       case (null) { Runtime.trap("Media not found") };
@@ -173,7 +178,6 @@ actor {
     };
   };
 
-  // Live session management
   public shared ({ caller }) func startLiveSession(title : Text, description : Text) : async () {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can start live sessions");
@@ -208,7 +212,6 @@ actor {
     };
   };
 
-  // Get live session details - public access (no authorization check needed)
   public query ({ caller }) func getLiveSession(title : Text) : async PublicLiveSession {
     switch (liveSessions.get(title)) {
       case (null) { Runtime.trap("Live session not found") };
@@ -216,8 +219,34 @@ actor {
     };
   };
 
-  // Browse all active live sessions - public access (no authorization check needed)
   public query ({ caller }) func getAllActiveLiveSessions() : async [PublicLiveSession] {
-    liveSessions.entries().toList<(Text, LiveSession)>().filter(func((_, session)) { session.isActive }).map<(Text, LiveSession), PublicLiveSession>(func((_, session)) { LiveSession.toPublic(session) }).toArray();
+    liveSessions.entries().toArray().filter(func((_, session)) { session.isActive }).map(func((_, session)) { LiveSession.toPublic(session) });
+  };
+
+  public shared ({ caller }) func createComment(mediaId : Text, commentInput : CommentInput) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can create comments");
+    };
+
+    let newComment : Comment = {
+      author = caller;
+      text = commentInput.text;
+      createdAt = Time.now();
+    };
+
+    let existingComments = switch (commentStore.get(mediaId)) {
+      case (null) { [] };
+      case (?comments) { comments };
+    };
+
+    let updatedComments = [newComment].concat(existingComments);
+    commentStore.add(mediaId, updatedComments);
+  };
+
+  public query ({ caller }) func getComments(mediaId : Text) : async [Comment] {
+    switch (commentStore.get(mediaId)) {
+      case (null) { [] };
+      case (?comments) { comments };
+    };
   };
 };

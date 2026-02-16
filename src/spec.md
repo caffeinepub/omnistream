@@ -1,12 +1,12 @@
 # Specification
 
 ## Summary
-**Goal:** Configure OmniStream to be reachable via the Internet Computer custom domain **ommistream.net** and document the required deployment + DNS setup for IC mainnet.
+**Goal:** Add a Watch-page comments feature (read for everyone, post for signed-in users) and completely remove the Viewer Timer from the Watch page.
 
 **Planned changes:**
-- Add the IC custom-domain allowlist file at `frontend/public/.well-known/ic-domains` containing `ommistream.net` and `www.ommistream.net` (one per line).
-- Update `frontend/docs/ic-mainnet-deployment.md` with a dedicated **custom domain (ommistream.net)** section covering: DNS record guidance, deploying the frontend assets canister, finding the frontend assets canister ID, forming the `icp0.io` canister URL, and correct hash-routing URL examples.
-- Update `frontend/.env.example` to include/document `II_DERIVATION_ORIGIN=https://ommistream.net` for consistent Internet Identity principals when using the custom domain.
-- Update `frontend/src/components/BackendUnavailableBanner.tsx` text to mention both valid access paths (the `icp0.io` canister URL format and `https://ommistream.net`) and hint that custom-domain misconfiguration can cause access failures, with fallback guidance.
+- Remove the Viewer Timer UI and any timer-related logic/wiring from the Watch page on both mobile and desktop.
+- Add backend storage and APIs to create and fetch comments per media item (keyed by Watch-page media title), storing text, author principal, and createdAt, and returning newest-first.
+- Add React Query hooks to fetch/post comments via the backend actor, keyed by media title, with cache invalidation/refetch after posting and clear error messaging if the actor is unavailable.
+- Add a Watch-page “Comments” section under the media that lists comments (with empty state), shows a posting form for signed-in users, and shows a sign-in prompt / disables posting for guests.
 
-**User-visible outcome:** After deployment, the frontend assets canister serves a `.well-known/ic-domains` allowlist for **ommistream.net**, users have clear instructions to configure DNS + verify access, and the app provides clearer guidance when the backend is unreachable (including `icp0.io` and the custom domain as access options).
+**User-visible outcome:** The Watch page no longer shows any Viewer Timer elements, and users can read comments under each media item; signed-in users can post a comment and see it appear immediately, while guests are prompted to sign in to post.

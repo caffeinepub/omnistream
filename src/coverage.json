@@ -1,7 +1,7 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-16T02:15:33.782Z",
+  "generatedAt": "2026-02-16T02:50:51.723Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
@@ -11,57 +11,63 @@
     "implemented": 3,
     "items": [
       {
-        "id": "REQ-30",
-        "summary": "Add the Internet Computer custom-domain allowlist file to the frontend static assets so the deployed assets canister can serve OmniStream on the custom domain ommistream.net.",
+        "id": "REQ-36",
+        "summary": "Remove the Viewer Timer feature entirely from the Watch page UI so no timer controls, timer sidebar, or timer-related text are shown on mobile or desktop.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/public/.well-known/ic-domains"
+          "frontend/src/pages/WatchPage.tsx"
         ],
         "matchedFiles": [
-          "frontend/public/.well-known/ic-domains"
+          "frontend/src/pages/WatchPage.tsx"
         ]
       },
       {
-        "id": "REQ-31",
-        "summary": "Update the repo-local mainnet deployment documentation to include a dedicated section for configuring OmniStream to be reachable at the custom domain ommistream.net, including the exact steps a user must perform outside the repo (DNS) and inside the repo (deploying the .well-known/ic-domains asset). Use English for all user-facing text.",
-        "status": "missing",
-        "plannedFiles": [
-          "frontend/docs/ic-mainnet-deployment.md"
-        ],
+        "id": "REQ-37",
+        "summary": "Implement backend comment storage and APIs so comments can be created and fetched per media item (keyed by the Watch page media title). Include comment text, author principal, and createdAt timestamp in the stored record, and return comments in reverse-chronological order (newest first).",
+        "status": "unknown",
+        "plannedFiles": [],
         "matchedFiles": []
       },
       {
-        "id": "REQ-32",
-        "summary": "Update the frontend environment configuration example to include the recommended Internet Identity derivation origin setting for the custom domain ommistream.net.",
+        "id": "REQ-38",
+        "summary": "Add React Query hooks to fetch and post comments via the backend actor, and ensure caches update immediately after posting (invalidate/refetch the relevant comments query for that media title).",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/.env.example"
+          "frontend/src/hooks/useQueries.ts"
         ],
         "matchedFiles": [
-          "frontend/.env.example"
+          "frontend/src/hooks/useQueries.ts"
         ]
       },
       {
-        "id": "REQ-33",
-        "summary": "Improve the backend-unavailable error banner guidance so it mentions both the icp0.io canister URL format and the custom domain ommistream.net as valid access paths, and provides a clear English hint that a misconfigured custom domain can cause access failures.",
+        "id": "REQ-39",
+        "summary": "Add a comments section under the media on the Watch page that (a) lists existing comments and (b) allows signed-in users to post a new comment. Guests can read comments but must sign in to post (show an English sign-in prompt and disable/hide the submit action for guests).",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/components/BackendUnavailableBanner.tsx"
+          "frontend/src/components/CommentsSection.tsx",
+          "frontend/src/pages/WatchPage.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/components/BackendUnavailableBanner.tsx"
+          "frontend/src/components/CommentsSection.tsx",
+          "frontend/src/pages/WatchPage.tsx"
         ]
       }
     ]
   },
   "changedFiles": [
+    "backend/main.mo",
+    "backend/migration.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/.env.example",
-    "frontend/public/.well-known/ic-domains",
-    "frontend/src/components/BackendUnavailableBanner.tsx",
+    "frontend/src/backend.d.ts",
+    "frontend/src/backend.ts",
+    "frontend/src/components/CommentsSection.tsx",
+    "frontend/src/declarations/backend.did.d.ts",
+    "frontend/src/declarations/backend.did.js",
+    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/pages/WatchPage.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

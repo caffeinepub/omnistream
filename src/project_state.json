@@ -1,18 +1,21 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 17,
-  "summary": "Build OmniStream, a YouTube-like video sharing website supporting user-uploaded long videos and shorts, starting empty, with a logo splash/loading screen (including founder/co-founder text), 24-hour max video length, and an optional viewer timer that can pause playback. Add a signed-in-only floating + action button for Upload/Short/Go Live, a simpler clock-style timer setter, a Shorts-specific logo/branding element, and require live streaming delay no longer than 5 seconds. Deploy the website so it is publicly accessible (go live), and configure a custom domain so the final public URL is ommistream.net.",
+  "projectStateVersion": 23,
+  "summary": "Build OmniStream, a YouTube-like video sharing website supporting user-uploaded long videos and shorts, starting empty, with a logo splash/loading screen (including founder/co-founder text), 24-hour max video length, and an optional viewer timer that can pause playback. Add a signed-in-only floating + action button for Upload/Short/Go Live, a simpler clock-style timer setter, a Shorts-specific logo/branding element, and require live streaming delay no longer than 5 seconds. Deploy the website so it is publicly accessible (go live), and configure a custom domain so the final public URL is ommistream.net. Add a comments section under every video on the Watch page, and remove the viewer timer feature entirely.",
   "architectural_notes": [
     "Guest mode supported: browsing allowed while unauthenticated; uploading/posting requires sign-in.",
     "User requested \"no actors\" (avoid Motoko actor backend); consider frontend-only/mock/local storage approach for uploads/feeds.",
     "Plan/prepare for deployment so the OmniStream site is publicly accessible (go-live/release workflow).",
-    "Custom domain target for public site: ommistream.net (configure DNS + IC boundary nodes / canister routing as needed and document the final URL)."
+    "Custom domain target for public site: ommistream.net (configure DNS + IC boundary nodes / canister routing as needed and document the final URL).",
+    "Frontend assets canister ID provided by user for public access URL generation: rdmx6-jaaaa-aaaaa-aaadq-cai (space removed from earlier copy).",
+    "Public canister URL format to use for preview/access: https://rdmx6-jaaaa-aaaaa-aaadq-cai.icp0.io",
+    "Viewer timer feature has been removed entirely from the Watch experience (no timer UI/logic)."
   ],
   "known_issues": [
     "User reports posting/uploading currently \"won't post now\" (upload failing).",
     "Deployed site access failing with \"Canister ID Not Resolved\" when opening the icp0.io URL (user indicates the deployment link/domain they are using does not resolve).",
-    "User cannot see the viewer timer UI on the Watch page (timer feature not visible).",
-    "Custom domain www.ommistream.com is not resolving (DNS_PROBE_FINISHED_NXDOMAIN)."
+    "Custom domain www.ommistream.com is not resolving (DNS_PROBE_FINISHED_NXDOMAIN).",
+    "User-provided canister ID was initially sent with an embedded space (\"aaad q-cai\"); must confirm exact copy/paste ID format when generating URLs."
   ],
   "isFixRequest": false,
   "existing_features": [
@@ -239,6 +242,46 @@
         "REQ-33"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-fix-the-end-to-end-upload-flow-so-authenticated-users-can-successfully-upload-a-video-or-a-short-and-the-uploaded-item-becomes-visible-immediately-in-the-correct-feed-home-videos-for-videos-shorts-for-shorts-and-for-you-mixed-feed",
+      "title": "Fix the end-to-end upload flow so authenticated users can successfully upload a Video or a Short and the uploaded item becomes visible immediately in the correct feed (Home/Videos for videos, Shorts for shorts, and For You mixed feed).",
+      "reqIds": [
+        "REQ-34"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-prevent-silent-no-op-upload-submissions-by-improving-upload-ui-validation-and-feedback-so-the-user-always-understands-why-the-upload-button-is-disabled-or-why-a-submit-attempt-does-nothing",
+      "title": "Prevent “silent no-op” upload submissions by improving Upload UI validation and feedback so the user always understands why the Upload button is disabled or why a submit attempt does nothing.",
+      "reqIds": [
+        "REQ-35"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-remove-the-viewer-timer-feature-entirely-from-the-watch-page-ui-so-no-timer-controls-timer-sidebar-or-timer-related-text-are-shown-on-mobile-or-desktop",
+      "title": "Remove the Viewer Timer feature entirely from the Watch page UI so no timer controls, timer sidebar, or timer-related text are shown on mobile or desktop.",
+      "reqIds": [
+        "REQ-36"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-react-query-hooks-to-fetch-and-post-comments-via-the-backend-actor-and-ensure-caches-update-immediately-after-posting-invalidate-refetch-the-relevant-comments-query-for-that-media-title",
+      "title": "Add React Query hooks to fetch and post comments via the backend actor, and ensure caches update immediately after posting (invalidate/refetch the relevant comments query for that media title).",
+      "reqIds": [
+        "REQ-38"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-comments-section-under-the-media-on-the-watch-page-that-a-lists-existing-comments-and-b-allows-signed-in-users-to-post-a-new-comment-guests-can-read-comments-but-must-sign-in-to-post-show-an-english-sign-in-prompt-and-disable-hide-the-submit-action-for-guests",
+      "title": "Add a comments section under the media on the Watch page that (a) lists existing comments and (b) allows signed-in users to post a new comment. Guests can read comments but must sign in to post (show an English sign-in prompt and disable/hide the submit action for guests).",
+      "reqIds": [
+        "REQ-39"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -279,12 +322,6 @@
       "status": "pending"
     },
     {
-      "id": "AR-7",
-      "summary": "Viewer timer feature that can be set while watching; when it goes off it pauses the video",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
       "id": "AR-12",
       "summary": "Allow guest access: unauthenticated users can browse as a guest but cannot upload/post until signed in",
       "reqIds": [],
@@ -305,12 +342,6 @@
     {
       "id": "AR-15",
       "summary": "Add a signed-in-only floating bottom-right + button that opens a menu for: Upload Video, Upload Short, and Go Live",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-16",
-      "summary": "Update viewer timer UI to use a simple clock-style selector where the user sets a time range (from this time to this time)",
       "reqIds": [],
       "status": "pending"
     },
@@ -341,12 +372,6 @@
     {
       "id": "AR-21",
       "summary": "Add a \"For You\" feed/page label that shows a mixed feed of both Shorts and long videos",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-22",
-      "summary": "Show the current clock time in the watch/timer area so users can see what time it is while setting the viewer timer range",
       "reqIds": [],
       "status": "pending"
     },
@@ -389,6 +414,38 @@
       "summary": "Update the repo-local mainnet deployment documentation to include a dedicated section for configuring OmniStream to be reachable at the custom domain ommistream.net, including the exact steps a user must perform outside the repo (DNS) and inside the repo (deploying the .well-known/ic-domains asset). Use English for all user-facing text.",
       "reqIds": [
         "REQ-31"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-34",
+      "summary": "Allow users to edit their channel name (channel/profile settings)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-35",
+      "summary": "Add a personal \"My Channel\" page so a signed-in user can view their own channel info and uploaded videos/shorts",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-36",
+      "summary": "Add search so users can search content (at minimum videos/shorts; scope TBD)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-37",
+      "summary": "Add a comments section under every video on the Watch page",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-39",
+      "summary": "Implement backend comment storage and APIs so comments can be created and fetched per media item (keyed by the Watch page media title). Include comment text, author principal, and createdAt timestamp in the stored record, and return comments in reverse-chronological order (newest first).",
+      "reqIds": [
+        "REQ-37"
       ],
       "status": "pending"
     }

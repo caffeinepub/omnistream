@@ -1,40 +1,64 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-16T02:15:33.778Z",
-  "summary": "REQ-30, REQ-32, and REQ-33 appear implemented (ic-domains allowlist file added; .env.example updated with II_DERIVATION_ORIGIN guidance; BackendUnavailableBanner updated to mention icp0.io and ommistream.net with misconfiguration hint). REQ-31 (documentation updates in frontend/docs/ic-mainnet-deployment.md) is not evidenced in the diff summary. Two unrelated files were modified without being requested.",
+  "generatedAt": "2026-02-16T02:50:51.720Z",
+  "summary": "Diff adds a Watch-page CommentsSection component and introduces a commentStore field (with migration scaffolding) in the backend. However, the diff summary does not provide clear evidence that the required backend comment APIs and the React Query comment hooks are fully implemented, and some frontend acceptance-criteria details (author name resolution, guest prompt/empty state) are not evidenced due to truncation.",
   "missing_requirements": [
     {
-      "id": "REQ-31",
-      "requirement": "Update the repo-local mainnet deployment documentation to include a dedicated section for configuring OmniStream to be reachable at the custom domain ommistream.net, including DNS steps, assets canister targeting, canister URL formation, hash-routing examples, and an explicit note that DNS updates cannot be done automatically.",
-      "reason": "No changes to frontend/docs/ic-mainnet-deployment.md are shown in the diff summary; requirement explicitly calls for updates to that file and specific content additions.",
+      "id": "REQ-37",
+      "requirement": "Implement backend comment storage and APIs so comments can be created and fetched per media item (keyed by media title), returning newest-first and including text/author/createdAt; add authenticated add-comment rejecting unauthenticated callers.",
+      "reason": "backend/main.mo shows Comment types and a commentStore Map declaration, but the diff excerpt does not show any query method to fetch comments by media title nor any authenticated shared method to add comments, nor the reverse-chronological sorting logic. Migration file suggests commentStore exists, but API surface is not evidenced in the provided truncated snippet.",
       "evidence": [
-        "File diff summary shows modified files do not include frontend/docs/ic-mainnet-deployment.md"
+        "backend/main.mo",
+        "backend/migration.mo"
+      ]
+    },
+    {
+      "id": "REQ-38",
+      "requirement": "Add React Query hooks to fetch and post comments via the backend actor, keyed by media title, and invalidate/refetch after posting; show a clear English error message if actor unavailable.",
+      "reason": "CommentsSection imports useGetComments/useCreateComment, but the provided useQueries.ts excerpt does not show implementations of these hooks, their queryKey structure (e.g. ['comments', title]), or invalidate/refetch behavior. Actor-unavailable English error handling for comments is also not evidenced in the visible portion of CommentsSection (file is truncated).",
+      "evidence": [
+        "frontend/src/components/CommentsSection.tsx",
+        "frontend/src/hooks/useQueries.ts"
+      ]
+    },
+    {
+      "id": "REQ-39",
+      "requirement": "Comments section on Watch page lists comments and allows signed-in users to post; guests can read but must see an English sign-in prompt and cannot submit; empty state in English; posted comments show readable timestamp; author display uses commenter profile name when available otherwise English fallback.",
+      "reason": "A CommentsSection component is added and includes a form and timestamp formatting, but the visible code hardcodes author name to 'User' and does not use commenter profile names ('getAuthorName' always returns 'User'). Guest prompt/disable behavior and empty-state messaging are not confirmable from the truncated portion of CommentsSection. WatchPage integration is also truncated right where CommentsSection would be rendered.",
+      "evidence": [
+        "frontend/src/components/CommentsSection.tsx",
+        "frontend/src/pages/WatchPage.tsx"
+      ]
+    },
+    {
+      "id": "REQ-36",
+      "requirement": "Remove the Viewer Timer feature entirely from the Watch page UI/logic (no timer controls/text/logic executed from WatchPage).",
+      "reason": "The provided WatchPage.tsx excerpt does not show ViewerTimer usage, but the file is truncated and the repository still contains a ViewerTimer component (per frontend-file-summaries). There is insufficient evidence in the diff snippet to conclusively verify that all timer UI/text/logic wiring was removed from WatchPage in the full file.",
+      "evidence": [
+        "frontend/src/pages/WatchPage.tsx",
+        "frontend-file-summaries.txt"
       ]
     }
   ],
   "hallucinated_features": [
     {
-      "description": "Updated frontend-file-summaries.txt content (repository metadata/summary file)",
-      "reason": "Not requested by any requirement (REQ-30–REQ-33) and unrelated to custom domain configuration implementation/documentation as specified.",
+      "description": "Introduced a backend migration module and wired migration runner to add commentStore to stable state.",
+      "reason": "BuildRequest did not request adding a migration system/module; it only required comment storage and APIs. The diff adds backend/migration.mo and references it from backend/main.mo.",
       "evidence": [
-        "frontend-file-summaries.txt (modified)"
-      ]
-    },
-    {
-      "description": "Updated project_state.json summary/state metadata",
-      "reason": "Not requested by any requirement (REQ-30–REQ-33) and not necessary to satisfy the custom domain allowlist/env/doc/banner changes.",
-      "evidence": [
-        "project_state.json (modified)"
+        "backend/migration.mo",
+        "backend/main.mo"
       ]
     }
   ],
-  "confidence": 0.78,
+  "confidence": 0.62,
   "changed_files": [
+    "backend/main.mo",
+    "backend/migration.mo",
     "frontend-file-summaries.txt",
-    "frontend/.env.example",
-    "frontend/public/.well-known/ic-domains",
-    "frontend/src/components/BackendUnavailableBanner.tsx",
+    "frontend/src/components/CommentsSection.tsx",
+    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/pages/WatchPage.tsx",
     "project_state.json"
   ]
 }

@@ -24,6 +24,7 @@ export const UserRole = IDL.Variant({
   'user' : IDL.Null,
   'guest' : IDL.Null,
 });
+export const CommentInput = IDL.Record({ 'text' : IDL.Text });
 export const Time = IDL.Int;
 export const PublicLiveSession = IDL.Record({
   'startTime' : Time,
@@ -45,6 +46,11 @@ export const PublicMediaMeta = IDL.Record({
   'mediaType' : MediaType,
 });
 export const UserProfile = IDL.Record({ 'name' : IDL.Text });
+export const Comment = IDL.Record({
+  'createdAt' : Time,
+  'text' : IDL.Text,
+  'author' : IDL.Principal,
+});
 export const UploadError = IDL.Variant({
   'storageFailure' : IDL.Null,
   'durationExceeded' : IDL.Null,
@@ -84,6 +90,7 @@ export const idlService = IDL.Service({
   '_caffeineStorageUpdateGatewayPrincipals' : IDL.Func([], [], []),
   '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
   'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+  'createComment' : IDL.Func([IDL.Text, CommentInput], [], []),
   'endLiveSession' : IDL.Func([IDL.Text], [], []),
   'getAllActiveLiveSessions' : IDL.Func(
       [],
@@ -94,6 +101,7 @@ export const idlService = IDL.Service({
   'getAllVideos' : IDL.Func([], [IDL.Vec(PublicMediaMeta)], ['query']),
   'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
+  'getComments' : IDL.Func([IDL.Text], [IDL.Vec(Comment)], ['query']),
   'getLiveSession' : IDL.Func([IDL.Text], [PublicLiveSession], ['query']),
   'getMediaByTitle' : IDL.Func([IDL.Text], [PublicMediaMeta], ['query']),
   'getUserProfile' : IDL.Func(
@@ -130,6 +138,7 @@ export const idlFactory = ({ IDL }) => {
     'user' : IDL.Null,
     'guest' : IDL.Null,
   });
+  const CommentInput = IDL.Record({ 'text' : IDL.Text });
   const Time = IDL.Int;
   const PublicLiveSession = IDL.Record({
     'startTime' : Time,
@@ -148,6 +157,11 @@ export const idlFactory = ({ IDL }) => {
     'mediaType' : MediaType,
   });
   const UserProfile = IDL.Record({ 'name' : IDL.Text });
+  const Comment = IDL.Record({
+    'createdAt' : Time,
+    'text' : IDL.Text,
+    'author' : IDL.Principal,
+  });
   const UploadError = IDL.Variant({
     'storageFailure' : IDL.Null,
     'durationExceeded' : IDL.Null,
@@ -187,6 +201,7 @@ export const idlFactory = ({ IDL }) => {
     '_caffeineStorageUpdateGatewayPrincipals' : IDL.Func([], [], []),
     '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
     'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+    'createComment' : IDL.Func([IDL.Text, CommentInput], [], []),
     'endLiveSession' : IDL.Func([IDL.Text], [], []),
     'getAllActiveLiveSessions' : IDL.Func(
         [],
@@ -197,6 +212,7 @@ export const idlFactory = ({ IDL }) => {
     'getAllVideos' : IDL.Func([], [IDL.Vec(PublicMediaMeta)], ['query']),
     'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
     'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
+    'getComments' : IDL.Func([IDL.Text], [IDL.Vec(Comment)], ['query']),
     'getLiveSession' : IDL.Func([IDL.Text], [PublicLiveSession], ['query']),
     'getMediaByTitle' : IDL.Func([IDL.Text], [PublicMediaMeta], ['query']),
     'getUserProfile' : IDL.Func(
