@@ -1,0 +1,31 @@
+{
+  "kind": "spec_vs_diff_report",
+  "version": "1.0",
+  "generatedAt": "2026-02-16T01:01:35.062Z",
+  "summary": "REQ-10 and REQ-11 appear implemented in the frontend (Discord community info in Footer; explicit guest messaging in NavBar and UploadPage). The Live MVP UI/routes and React Query hooks are added (Live list page + details page + nav entry). However, the diff summary does not include concrete evidence that the backend exposes the required live-session canister methods (create/end/list/fetch) with the specified access control; the backend file is truncated before those methods would be visible.",
+  "missing_requirements": [
+    {
+      "id": "REQ-12",
+      "requirement": "Backend exposes canister methods to create, end, list, and fetch live session metadata, with access control that prevents guests from creating/ending sessions and prevents users from ending sessions they did not start.",
+      "reason": "Although live session types and a liveSessions map are shown, the diff summary is truncated and does not show the actual public/shared canister methods (e.g., start/create, end, list, get) or their authorization checks. Frontend hooks call actor.getAllActiveLiveSessions(), actor.getLiveSession(...), and mutations for start/end, but the corresponding backend implementations are not visible in the provided diff excerpt.",
+      "evidence": [
+        "backend/main.mo (truncated)",
+        "frontend/src/hooks/useQueries.ts (truncated)"
+      ]
+    }
+  ],
+  "hallucinated_features": [],
+  "confidence": 0.62,
+  "changed_files": [
+    "backend/main.mo",
+    "frontend-file-summaries.txt",
+    "frontend/src/App.tsx",
+    "frontend/src/components/Footer.tsx",
+    "frontend/src/components/NavBar.tsx",
+    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/pages/LiveDetailsPage.tsx",
+    "frontend/src/pages/LivePage.tsx",
+    "frontend/src/pages/UploadPage.tsx",
+    "project_state.json"
+  ]
+}

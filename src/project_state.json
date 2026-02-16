@@ -1,0 +1,174 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 5,
+  "summary": "Build OmniStream, a YouTube-like video sharing website supporting user-uploaded long videos and shorts, starting empty, with a logo splash/loading screen (including founder/co-founder text), 24-hour max video length, and an optional viewer timer that can pause playback.",
+  "architectural_notes": [
+    "Guest mode supported: browsing allowed while unauthenticated; uploading/posting requires sign-in."
+  ],
+  "known_issues": [],
+  "isFixRequest": false,
+  "existing_features": [
+    {
+      "id": "feature-create-the-omnistream-app-shell-with-core-navigation-and-pages-for-home-video-feed-shorts-vertical-shorts-feed-upload-post-a-video-short-and-watch-player-page-the-site-must-start-with-no-videos-shorts-shown-empty-state-ui",
+      "title": "Create the OmniStream app shell with core navigation and pages for: Home (video feed), Shorts (vertical shorts feed), Upload (post a video/short), and Watch (player page). The site must start with no videos/shorts shown (empty state UI).",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-authentication-using-internet-identity-so-users-can-sign-in-before-uploading-content-unauthenticated-users-can-browse-but-cannot-upload",
+      "title": "Implement authentication using Internet Identity so users can sign in before uploading content; unauthenticated users can browse but cannot upload.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-frontend-upload-flow-allow-users-to-upload-either-a-long-video-or-a-short-set-a-title-and-provide-confirm-the-video-duration-shown-to-the-user-before-posting-after-upload-the-new-item-appears-in-the-appropriate-feed-home-for-videos-shorts-for-shorts",
+      "title": "Frontend Upload flow: allow users to upload either a long video or a short, set a title, and provide/confirm the video duration shown to the user before posting. After upload, the new item appears in the appropriate feed (Home for videos, Shorts for shorts).",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-the-watch-experience-play-the-selected-video-short-display-current-time-and-total-duration-and-include-a-viewer-timer-users-can-set-while-watching-when-the-timer-reaches-zero-the-player-must-automatically-pause",
+      "title": "Implement the Watch experience: play the selected video/short, display current time and total duration, and include a viewer timer users can set while watching. When the timer reaches zero, the player must automatically pause.",
+      "reqIds": [
+        "REQ-6"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-splash-loading-screen-that-appears-on-initial-app-load-and-displays-the-omnistream-logo-image-provided-by-the-user-including-the-founder-co-founder-text-use-the-entire-image-after-a-brief-load-transition-to-the-app",
+      "title": "Add a splash/loading screen that appears on initial app load and displays the OmniStream logo image provided by the user, including the founder/co-founder text (use the entire image). After a brief load, transition to the app.",
+      "reqIds": [
+        "REQ-7"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-and-apply-a-coherent-visual-theme-for-omnistream-colors-typography-layout-with-a-distinct-modern-streaming-style-consistently-applied-across-all-pages-do-not-use-a-blue-purple-dominant-palette",
+      "title": "Create and apply a coherent visual theme for OmniStream (colors, typography, layout) with a distinct modern streaming style, consistently applied across all pages. Do not use a blue/purple-dominant palette.",
+      "reqIds": [
+        "REQ-8"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-render-generated-processed-images-as-static-frontend-assets-under-frontend-public-assets-generated-and-reference-them-in-the-ui-splash-screen",
+      "title": "Render generated/processed images as static frontend assets under frontend/public/assets/generated and reference them in the UI (splash screen).",
+      "reqIds": [
+        "REQ-9"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-surface-omnistream-discord-community-information-in-the-app-ui-using-the-provided-discord-server-name-and-contact-username-server-ommistream-and-user-contact-scottiscool",
+      "title": "Surface OmniStream Discord community information in the app UI using the provided Discord server name and contact username: server \"ommistream\" and user/contact \"scottiscool\".",
+      "reqIds": [
+        "REQ-10"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-make-the-guest-experience-explicit-in-the-ui-when-the-user-is-not-authenticated-clearly-indicate-they-are-browsing-as-a-guest-and-that-uploading-posting-requires-signing-in",
+      "title": "Make the guest experience explicit in the UI: when the user is not authenticated, clearly indicate they are browsing as a guest and that uploading/posting requires signing in.",
+      "reqIds": [
+        "REQ-11"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-basic-go-live-capability-as-a-first-mvp-allow-authenticated-users-to-create-and-end-a-live-session-metadata-only-and-allow-all-users-including-guests-to-browse-a-list-of-live-sessions-and-view-a-live-session-details-page",
+      "title": "Add a basic \"Go Live\" capability as a first MVP: allow authenticated users to create and end a live session (metadata-only), and allow all users (including guests) to browse a list of live sessions and view a live session details page.",
+      "reqIds": [
+        "REQ-12"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "OmniStream core video-sharing site where users can post/upload their own videos and shorts with titles",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Support both long-form videos and short vertical videos (Shorts)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Start site with no videos (initially empty library)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Splash/loading screen that displays the uploaded OmniStream logo image including founder/co-founder text",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-5",
+      "summary": "Enforce max video length of 24 hours for uploads",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-6",
+      "summary": "Show video time/duration while watching",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-7",
+      "summary": "Viewer timer feature that can be set while watching; when it goes off it pauses the video",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-10",
+      "summary": "Backend: implement storage and retrieval for video/short metadata and media content in a single Motoko actor, including create/list/get operations. Each upload must include: title, type (Video or Short), createdAt timestamp, durationSeconds, and media bytes. Content library must be empty on first deploy.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-11",
+      "summary": "Enforce upload duration rules: support both long videos and shorts, but reject any upload whose declared duration exceeds 24 hours (86,400 seconds). Provide a clear error message to the frontend when rejected.",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-12",
+      "summary": "Allow guest access: unauthenticated users can browse as a guest but cannot upload/post until signed in",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-13",
+      "summary": "Add Live/Go Live capability (live streaming) to OmniStream",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-14",
+      "summary": "Surface OmniStream Discord community info (server: \"ommistream\", user/contact: \"scottiscool\") somewhere in the app (e.g., footer/about)",
+      "reqIds": [],
+      "status": "pending"
+    }
+  ],
+  "gameProjectType": "none",
+  "projectName": "OmniStream",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}

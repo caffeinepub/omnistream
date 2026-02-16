@@ -1,0 +1,89 @@
+{
+  "kind": "implementation_plan",
+  "version": "1.0",
+  "title": "Guest-mode messaging, Discord community info, and Live sessions (metadata-only) UI",
+  "requirements": [
+    {
+      "id": "REQ-10",
+      "summary": "Display OmniStream Discord server/community info in an always-visible UI section without adding Discord integration.",
+      "acceptanceCriteria": [
+        "The footer (or another always-visible section) displays Discord server name \"ommistream\" and contact \"scottiscool\" in English.",
+        "No third-party Discord authentication/integration is added.",
+        "If any social icons/links remain that do not have real URLs, they do not misleadingly imply an official Discord link unless a URL is explicitly provided."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/Footer.tsx",
+          "operation": "modify",
+          "description": "Update the always-visible footer to show Discord community text in English: server \"ommistream\" and contact \"scottiscool\". Remove or neutralize any placeholder social links (currently using \"#\") so they do not imply official links without real URLs."
+        }
+      ]
+    },
+    {
+      "id": "REQ-11",
+      "summary": "Make guest browsing explicit in the UI and clarify that posting/uploading requires sign-in.",
+      "acceptanceCriteria": [
+        "When not signed in, at least one prominent UI location (e.g., NavBar and/or Upload page) shows \"Browsing as a guest\" (or equivalent) in English.",
+        "Upload page unauthenticated state explicitly states that guests can browse but must sign in to upload/post.",
+        "Authenticated users do not see guest-only messaging."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/NavBar.tsx",
+          "operation": "modify",
+          "description": "Add a prominent guest-mode indicator in the NavBar when there is no authenticated identity (e.g., \"Browsing as a guest\"). Ensure it is hidden for authenticated users. Use the existing auth state from the Internet Identity context, aligned with the authorization component’s frontend guidance (guests = anonymous). Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/UploadPage.tsx",
+          "operation": "modify",
+          "description": "Revise the unauthenticated Upload page state to explicitly message that the user is browsing as a guest and must sign in to upload/post (English). Ensure authenticated users continue to see the upload UI without guest-only messaging."
+        }
+      ]
+    },
+    {
+      "id": "REQ-12",
+      "summary": "Add Live sessions UI: public list + details pages for everyone, and start/end controls for authenticated users (metadata-only).",
+      "acceptanceCriteria": [
+        "A new \"Live\" (or \"Go Live\") entry point is available in the app navigation and routes to a dedicated page.",
+        "Guests can view a public list of live sessions (including an empty state when none exist).",
+        "Authenticated users can start a live session by providing, at minimum, a title; the session becomes visible in the public list as \"Live\".",
+        "Authenticated users can end a live session they started; ended sessions are clearly marked as ended or are removed from the \"Live now\" list (implementation choice, but must be consistent).",
+        "Backend exposes canister methods to create, end, list, and fetch live session metadata, with access control that prevents guests from creating/ending sessions and prevents users from ending sessions they did not start.",
+        "User-facing text is in English.",
+        "This MVP does not require real-time video streaming; it is explicitly metadata/status-driven."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Add React Query hooks for Live sessions using the existing backend actor capabilities: list active sessions, fetch a session by title, start a session, and end a session. Ensure mutations handle authorization failures gracefully in the UI flow per the authorization component guidance (guests cannot start/end). Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/LivePage.tsx",
+          "operation": "create",
+          "description": "Create a dedicated Live page that (1) shows a public list of active live sessions with an English empty state when none exist, and (2) conditionally shows authenticated-only controls to start a live session (at minimum title; optionally description). Use existing shadcn/ui components already present in the project (e.g., Card/Button) for consistent styling."
+        },
+        {
+          "path": "frontend/src/pages/LiveDetailsPage.tsx",
+          "operation": "create",
+          "description": "Create a Live session details page accessible to all users (including guests) that fetches and displays session metadata (title/description/status/started time). If the viewer is authenticated and is the session owner, show an End Session action; otherwise, do not show end controls. Ensure all user-facing text is English and clearly indicates this is metadata-only (no real streaming)."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Register new routes for Live browsing and Live session details (e.g., \"/live\" and a title-based details route). Wire the routes into the existing TanStack Router route tree so the pages are navigable."
+        },
+        {
+          "path": "frontend/src/components/NavBar.tsx",
+          "operation": "modify",
+          "description": "Add a new navigation entry point labeled \"Live\" (or \"Go Live\") that routes to the dedicated Live page. Ensure it is visible in the app navigation alongside existing links."
+        },
+        {
+          "path": "frontend/src/components/Footer.tsx",
+          "operation": "modify",
+          "description": "Add a footer Quick Link for the new Live page to keep navigation consistent and ensure the Live area is discoverable."
+        }
+      ]
+    }
+  ]
+}

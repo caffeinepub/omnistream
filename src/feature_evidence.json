@@ -1,0 +1,71 @@
+{
+  "kind": "feature_evidence_report",
+  "features": [
+    {
+      "featureId": "feature-surface-omnistream-discord-community-information-in-the-app-ui-using-the-provided-discord-server-name-and-contact-username-server-ommistream-and-user-contact-scottiscool",
+      "featureTitle": "Surface OmniStream Discord community information in the app UI using the provided Discord server name and contact username: server \"ommistream\" and user/contact \"scottiscool\".",
+      "files": [
+        "frontend/src/components/Footer.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-10"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-make-the-guest-experience-explicit-in-the-ui-when-the-user-is-not-authenticated-clearly-indicate-they-are-browsing-as-a-guest-and-that-uploading-posting-requires-signing-in",
+      "featureTitle": "Make the guest experience explicit in the UI: when the user is not authenticated, clearly indicate they are browsing as a guest and that uploading/posting requires signing in.",
+      "files": [
+        "frontend/src/components/NavBar.tsx",
+        "frontend/src/pages/UploadPage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-11"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-a-basic-go-live-capability-as-a-first-mvp-allow-authenticated-users-to-create-and-end-a-live-session-metadata-only-and-allow-all-users-including-guests-to-browse-a-list-of-live-sessions-and-view-a-live-session-details-page",
+      "featureTitle": "Add a basic \"Go Live\" capability as a first MVP: allow authenticated users to create and end a live session (metadata-only), and allow all users (including guests) to browse a list of live sessions and view a live session details page.",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/components/Footer.tsx",
+        "frontend/src/components/NavBar.tsx",
+        "frontend/src/hooks/useQueries.ts",
+        "frontend/src/pages/LiveDetailsPage.tsx",
+        "frontend/src/pages/LivePage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-12"
+      ],
+      "confidence": "high"
+    }
+  ]
+}

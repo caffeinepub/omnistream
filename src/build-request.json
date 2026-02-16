@@ -1,0 +1,89 @@
+{
+  "kind": "build_request",
+  "title": "Add guest-mode messaging, Discord community info, and a basic Go Live feature",
+  "priority": "normal",
+  "requirements": [
+    {
+      "id": "REQ-10",
+      "text": "Surface OmniStream Discord community information in the app UI using the provided Discord server name and contact username: server \"ommistream\" and user/contact \"scottiscool\".",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "discord is scottiscool and server is ommistream"
+        ]
+      },
+      "acceptanceCriteria": [
+        "The footer (or another always-visible section) displays Discord server name \"ommistream\" and contact \"scottiscool\" in English.",
+        "No third-party Discord authentication/integration is added.",
+        "If any social icons/links remain that do not have real URLs, they do not misleadingly imply an official Discord link unless a URL is explicitly provided."
+      ]
+    },
+    {
+      "id": "REQ-11",
+      "text": "Make the guest experience explicit in the UI: when the user is not authenticated, clearly indicate they are browsing as a guest and that uploading/posting requires signing in.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "no sogn in u can be a gest on it but can't post into your sign in"
+        ]
+      },
+      "acceptanceCriteria": [
+        "When not signed in, at least one prominent UI location (e.g., NavBar and/or Upload page) shows \"Browsing as a guest\" (or equivalent) in English.",
+        "Upload page unauthenticated state explicitly states that guests can browse but must sign in to upload/post.",
+        "Authenticated users do not see guest-only messaging."
+      ]
+    },
+    {
+      "id": "REQ-12",
+      "text": "Add a basic \"Go Live\" capability as a first MVP: allow authenticated users to create and end a live session (metadata-only), and allow all users (including guests) to browse a list of live sessions and view a live session details page.",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "and u can go live"
+        ]
+      },
+      "acceptanceCriteria": [
+        "A new \"Live\" (or \"Go Live\") entry point is available in the app navigation and routes to a dedicated page.",
+        "Guests can view a public list of live sessions (including an empty state when none exist).",
+        "Authenticated users can start a live session by providing, at minimum, a title; the session becomes visible in the public list as \"Live\".",
+        "Authenticated users can end a live session they started; ended sessions are clearly marked as ended or are removed from the \"Live now\" list (implementation choice, but must be consistent).",
+        "Backend exposes canister methods to create, end, list, and fetch live session metadata, with access control that prevents guests from creating/ending sessions and prevents users from ending sessions they did not start.",
+        "User-facing text is in English.",
+        "This MVP does not require real-time video streaming; it is explicitly metadata/status-driven."
+      ]
+    }
+  ],
+  "constraints": [
+    "Backend must remain a single Motoko actor in backend/main.mo (no additional backend services).",
+    "Do not edit files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or frontend/src/components/ui; compose them instead.",
+    "Respect existing Internet Identity auth model: unauthenticated users can browse but cannot upload/post or create live sessions."
+  ],
+  "nonGoals": [
+    "Implement real-time live video streaming (e.g., WebRTC/HLS), low-latency chat, or WebSockets.",
+    "Add Discord OAuth/login or any Discord API integration beyond displaying the provided server/contact info.",
+    "Change or redesign already-implemented core video upload/watch features beyond adding guest messaging and the new Live MVP."
+  ],
+  "imageRequirements": {
+    "required": [],
+    "edits": []
+  },
+  "userProfileUpdate": {
+    "goalsToAdd": [],
+    "goalsToRemove": [],
+    "preferencesToAdd": [],
+    "preferencesToRemove": [],
+    "miscToAdd": [],
+    "miscToRemove": [],
+    "fieldsToSet": {},
+    "fieldsToDelete": []
+  }
+}
