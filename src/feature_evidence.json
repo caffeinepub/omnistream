@@ -2,11 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-fix-the-watch-page-so-the-viewer-timer-ui-is-clearly-visible-and-usable-for-all-users-on-common-screen-sizes-mobile-desktop-including-when-the-watch-page-is-reached-via-deep-links",
-      "featureTitle": "Fix the Watch page so the Viewer Timer UI is clearly visible and usable for all users on common screen sizes (mobile + desktop), including when the Watch page is reached via deep links.",
+      "featureId": "feature-add-the-internet-computer-custom-domain-allowlist-file-to-the-frontend-static-assets-so-the-deployed-assets-canister-can-serve-omnistream-on-the-custom-domain-ommistream-net",
+      "featureTitle": "Add the Internet Computer custom-domain allowlist file to the frontend static assets so the deployed assets canister can serve OmniStream on the custom domain ommistream.net.",
       "files": [
-        "frontend/src/components/ViewerTimer.tsx",
-        "frontend/src/pages/WatchPage.tsx"
+        "frontend/public/.well-known/ic-domains"
       ],
       "components": [
         "authorization@4.0.0",
@@ -18,16 +17,15 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-23"
+        "REQ-30"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-fix-and-harden-the-deployed-site-access-path-so-users-do-not-encounter-the-gateway-error-canister-id-not-resolved-when-opening-the-correct-icp0-io-url-for-the-deployed-omnistream-frontend-assets-canister",
-      "featureTitle": "Fix and harden the deployed-site access path so users do not encounter the gateway error “Canister ID Not Resolved” when opening the correct icp0.io URL for the deployed OmniStream frontend assets canister.",
+      "featureId": "feature-update-the-frontend-environment-configuration-example-to-include-the-recommended-internet-identity-derivation-origin-setting-for-the-custom-domain-ommistream-net",
+      "featureTitle": "Update the frontend environment configuration example to include the recommended Internet Identity derivation origin setting for the custom domain ommistream.net.",
       "files": [
-        "frontend/index.html",
-        "frontend/src/App.tsx"
+        "frontend/.env.example"
       ],
       "components": [
         "authorization@4.0.0",
@@ -39,17 +37,15 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-24"
+        "REQ-32"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-add-a-user-facing-error-state-in-the-frontend-for-when-the-app-cannot-reach-the-backend-canister-or-cannot-create-use-the-actor-so-the-ui-shows-a-clear-english-message-describing-that-the-service-is-temporarily-unavailable-instead-of-failing-silently",
-      "featureTitle": "Add a user-facing error state in the frontend for when the app cannot reach the backend canister (or cannot create/use the actor), so the UI shows a clear English message describing that the service is temporarily unavailable instead of failing silently.",
+      "featureId": "feature-improve-the-backend-unavailable-error-banner-guidance-so-it-mentions-both-the-icp0-io-canister-url-format-and-the-custom-domain-ommistream-net-as-valid-access-paths-and-provides-a-clear-english-hint-that-a-misconfigured-custom-domain-can-cause-access-failures",
+      "featureTitle": "Improve the backend-unavailable error banner guidance so it mentions both the icp0.io canister URL format and the custom domain ommistream.net as valid access paths, and provides a clear English hint that a misconfigured custom domain can cause access failures.",
       "files": [
-        "frontend/src/components/AppLayout.tsx",
-        "frontend/src/components/BackendUnavailableBanner.tsx",
-        "frontend/src/pages/WatchPage.tsx"
+        "frontend/src/components/BackendUnavailableBanner.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -61,7 +57,7 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-26"
+        "REQ-33"
       ],
       "confidence": "high"
     }

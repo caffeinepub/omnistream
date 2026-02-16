@@ -1,44 +1,40 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-16T01:51:57.106Z",
-  "summary": "Diff adds a frontend backend-unavailable banner and some watch-page/backend error messaging, updates routing to use hash history with basic hash normalization, and enhances the ViewerTimer component UI/behavior. However, the diff does not include deployment documentation updates and does not provide sufficient evidence that mainnet access-path hardening (icp0 URL / gateway “Canister ID Not Resolved”) and Watch-page Viewer Timer visibility acceptance criteria are fully met.",
+  "generatedAt": "2026-02-16T02:15:33.778Z",
+  "summary": "REQ-30, REQ-32, and REQ-33 appear implemented (ic-domains allowlist file added; .env.example updated with II_DERIVATION_ORIGIN guidance; BackendUnavailableBanner updated to mention icp0.io and ommistream.net with misconfiguration hint). REQ-31 (documentation updates in frontend/docs/ic-mainnet-deployment.md) is not evidenced in the diff summary. Two unrelated files were modified without being requested.",
   "missing_requirements": [
     {
-      "id": "REQ-23",
-      "requirement": "Fix the Watch page so the Viewer Timer UI is clearly visible and usable for all users on common screen sizes (mobile + desktop), including when the Watch page is reached via deep links.",
-      "reason": "While ViewerTimer was modified, the diff summary for WatchPage is truncated and does not clearly show that the Viewer Timer card is placed/laid out such that it is visible without scrolling on desktop and discoverable on mobile (e.g., explicit responsive placement/controls).",
+      "id": "REQ-31",
+      "requirement": "Update the repo-local mainnet deployment documentation to include a dedicated section for configuring OmniStream to be reachable at the custom domain ommistream.net, including DNS steps, assets canister targeting, canister URL formation, hash-routing examples, and an explicit note that DNS updates cannot be done automatically.",
+      "reason": "No changes to frontend/docs/ic-mainnet-deployment.md are shown in the diff summary; requirement explicitly calls for updates to that file and specific content additions.",
       "evidence": [
-        "frontend/src/components/ViewerTimer.tsx",
-        "frontend/src/pages/WatchPage.tsx (truncated)"
+        "File diff summary shows modified files do not include frontend/docs/ic-mainnet-deployment.md"
       ]
-    },
-    {
-      "id": "REQ-24",
-      "requirement": "Fix and harden the deployed-site access path so users do not encounter the gateway error “Canister ID Not Resolved” when opening the correct icp0.io URL for the deployed OmniStream frontend assets canister.",
-      "reason": "The diff shows hash-based routing and a small hash normalization, but no deployment/config/canister URL resolution changes or documentation that would concretely address the icp0 gateway resolution error. No changes to dfx/deploy settings are evidenced.",
-      "evidence": [
-        "frontend/src/App.tsx",
-        "frontend/index.html"
-      ]
-    },
-    {
-      "id": "REQ-25",
-      "requirement": "Update the repo-local mainnet deployment documentation to explain which deployed canister URL must be used, how to obtain it after deployment, examples (root + hash deep link), and troubleshooting for “Canister ID Not Resolved”.",
-      "reason": "No documentation files (e.g., README, DEPLOYMENT guide) are shown as added/modified in the diff summary.",
-      "evidence": []
     }
   ],
-  "hallucinated_features": [],
-  "confidence": 0.62,
+  "hallucinated_features": [
+    {
+      "description": "Updated frontend-file-summaries.txt content (repository metadata/summary file)",
+      "reason": "Not requested by any requirement (REQ-30–REQ-33) and unrelated to custom domain configuration implementation/documentation as specified.",
+      "evidence": [
+        "frontend-file-summaries.txt (modified)"
+      ]
+    },
+    {
+      "description": "Updated project_state.json summary/state metadata",
+      "reason": "Not requested by any requirement (REQ-30–REQ-33) and not necessary to satisfy the custom domain allowlist/env/doc/banner changes.",
+      "evidence": [
+        "project_state.json (modified)"
+      ]
+    }
+  ],
+  "confidence": 0.78,
   "changed_files": [
     "frontend-file-summaries.txt",
-    "frontend/index.html",
-    "frontend/src/App.tsx",
-    "frontend/src/components/AppLayout.tsx",
+    "frontend/.env.example",
+    "frontend/public/.well-known/ic-domains",
     "frontend/src/components/BackendUnavailableBanner.tsx",
-    "frontend/src/components/ViewerTimer.tsx",
-    "frontend/src/pages/WatchPage.tsx",
     "project_state.json"
   ]
 }

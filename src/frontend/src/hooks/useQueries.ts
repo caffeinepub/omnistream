@@ -112,6 +112,8 @@ export function useUploadMedia() {
       if (result.__kind__ === 'error') {
         if (result.error === 'durationExceeded') {
           throw new Error('Video duration exceeds the 24-hour limit');
+        } else if (result.error === 'shortIsTooShort') {
+          throw new Error('Shorts must be at least 3 seconds long');
         } else {
           throw new Error('Upload failed due to storage error');
         }

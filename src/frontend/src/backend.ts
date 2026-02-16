@@ -131,7 +131,8 @@ export enum MediaType {
 }
 export enum UploadError {
     storageFailure = "storageFailure",
-    durationExceeded = "durationExceeded"
+    durationExceeded = "durationExceeded",
+    shortIsTooShort = "shortIsTooShort"
 }
 export enum UserRole {
     admin = "admin",
@@ -561,8 +562,10 @@ function from_candid_variant_n25(_uploadFile: (file: ExternalBlob) => Promise<Ui
     storageFailure: null;
 } | {
     durationExceeded: null;
+} | {
+    shortIsTooShort: null;
 }): UploadError {
-    return "storageFailure" in value ? UploadError.storageFailure : "durationExceeded" in value ? UploadError.durationExceeded : value;
+    return "storageFailure" in value ? UploadError.storageFailure : "durationExceeded" in value ? UploadError.durationExceeded : "shortIsTooShort" in value ? UploadError.shortIsTooShort : value;
 }
 async function from_candid_vec_n10(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_PublicMediaMeta>): Promise<Array<PublicMediaMeta>> {
     return await Promise.all(value.map(async (x)=>await from_candid_PublicMediaMeta_n11(_uploadFile, _downloadFile, x)));

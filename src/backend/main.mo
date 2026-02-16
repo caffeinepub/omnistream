@@ -97,6 +97,7 @@ actor {
   public type UploadError = {
     #durationExceeded;
     #storageFailure;
+    #shortIsTooShort;
   };
 
   let ONE_DAY_SECONDS = 24 * 60 * 60;
@@ -127,6 +128,15 @@ actor {
   public shared ({ caller }) func uploadMedia(title : Text, mediaType : MediaType, durationSeconds : Nat, mediaData : Storage.ExternalBlob) : async UploadResult {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can upload media");
+    };
+
+    switch (mediaType) {
+      case (#short) {
+        if (durationSeconds < 3) {
+          return #error(#shortIsTooShort);
+        };
+      };
+      case (_) {};
     };
 
     if (durationSeconds > ONE_DAY_SECONDS) {

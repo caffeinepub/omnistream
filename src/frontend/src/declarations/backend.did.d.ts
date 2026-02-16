@@ -29,7 +29,8 @@ export interface PublicMediaMeta {
 }
 export type Time = bigint;
 export type UploadError = { 'storageFailure' : null } |
-  { 'durationExceeded' : null };
+  { 'durationExceeded' : null } |
+  { 'shortIsTooShort' : null };
 export type UploadResult = { 'error' : UploadError } |
   { 'success' : PublicMediaMeta };
 export interface UserProfile { 'name' : string }

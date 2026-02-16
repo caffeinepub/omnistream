@@ -45,7 +45,8 @@ export enum MediaType {
 }
 export enum UploadError {
     storageFailure = "storageFailure",
-    durationExceeded = "durationExceeded"
+    durationExceeded = "durationExceeded",
+    shortIsTooShort = "shortIsTooShort"
 }
 export enum UserRole {
     admin = "admin",

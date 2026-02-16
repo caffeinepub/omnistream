@@ -1,18 +1,20 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 13,
-  "summary": "Build OmniStream, a YouTube-like video sharing website supporting user-uploaded long videos and shorts, starting empty, with a logo splash/loading screen (including founder/co-founder text), 24-hour max video length, and an optional viewer timer that can pause playback. Add a signed-in-only floating + action button for Upload/Short/Go Live, a simpler clock-style timer setter, a Shorts-specific logo/branding element, and require live streaming delay no longer than 5 seconds. Deploy the website so it is publicly accessible (go live).",
+  "projectStateVersion": 17,
+  "summary": "Build OmniStream, a YouTube-like video sharing website supporting user-uploaded long videos and shorts, starting empty, with a logo splash/loading screen (including founder/co-founder text), 24-hour max video length, and an optional viewer timer that can pause playback. Add a signed-in-only floating + action button for Upload/Short/Go Live, a simpler clock-style timer setter, a Shorts-specific logo/branding element, and require live streaming delay no longer than 5 seconds. Deploy the website so it is publicly accessible (go live), and configure a custom domain so the final public URL is ommistream.net.",
   "architectural_notes": [
     "Guest mode supported: browsing allowed while unauthenticated; uploading/posting requires sign-in.",
     "User requested \"no actors\" (avoid Motoko actor backend); consider frontend-only/mock/local storage approach for uploads/feeds.",
-    "Plan/prepare for deployment so the OmniStream site is publicly accessible (go-live/release workflow)."
+    "Plan/prepare for deployment so the OmniStream site is publicly accessible (go-live/release workflow).",
+    "Custom domain target for public site: ommistream.net (configure DNS + IC boundary nodes / canister routing as needed and document the final URL)."
   ],
   "known_issues": [
     "User reports posting/uploading currently \"won't post now\" (upload failing).",
     "Deployed site access failing with \"Canister ID Not Resolved\" when opening the icp0.io URL (user indicates the deployment link/domain they are using does not resolve).",
-    "User cannot see the viewer timer UI on the Watch page (timer feature not visible)."
+    "User cannot see the viewer timer UI on the Watch page (timer feature not visible).",
+    "Custom domain www.ommistream.com is not resolving (DNS_PROBE_FINISHED_NXDOMAIN)."
   ],
-  "isFixRequest": true,
+  "isFixRequest": false,
   "existing_features": [
     {
       "id": "feature-create-the-omnistream-app-shell-with-core-navigation-and-pages-for-home-video-feed-shorts-vertical-shorts-feed-upload-post-a-video-short-and-watch-player-page-the-site-must-start-with-no-videos-shorts-shown-empty-state-ui",
@@ -197,6 +199,46 @@
         "REQ-26"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-update-the-backend-uploaderror-type-and-returned-error-values-to-include-a-distinct-error-case-for-shorts-that-are-under-3-seconds-and-ensure-the-frontend-can-decode-it-via-generated-types-bindings",
+      "title": "Update the backend UploadError type and returned error values to include a distinct error case for Shorts that are under 3 seconds, and ensure the frontend can decode it via generated types/bindings.",
+      "reqIds": [
+        "REQ-28"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-client-side-validation-in-the-upload-ui-so-users-cannot-submit-a-short-upload-when-the-detected-duration-is-under-3-seconds-and-show-clear-english-user-facing-feedback-explaining-the-rule",
+      "title": "Add client-side validation in the upload UI so users cannot submit a Short upload when the detected duration is under 3 seconds, and show clear English user-facing feedback explaining the rule.",
+      "reqIds": [
+        "REQ-29"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-the-internet-computer-custom-domain-allowlist-file-to-the-frontend-static-assets-so-the-deployed-assets-canister-can-serve-omnistream-on-the-custom-domain-ommistream-net",
+      "title": "Add the Internet Computer custom-domain allowlist file to the frontend static assets so the deployed assets canister can serve OmniStream on the custom domain ommistream.net.",
+      "reqIds": [
+        "REQ-30"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-frontend-environment-configuration-example-to-include-the-recommended-internet-identity-derivation-origin-setting-for-the-custom-domain-ommistream-net",
+      "title": "Update the frontend environment configuration example to include the recommended Internet Identity derivation origin setting for the custom domain ommistream.net.",
+      "reqIds": [
+        "REQ-32"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-improve-the-backend-unavailable-error-banner-guidance-so-it-mentions-both-the-icp0-io-canister-url-format-and-the-custom-domain-ommistream-net-as-valid-access-paths-and-provides-a-clear-english-hint-that-a-misconfigured-custom-domain-can-cause-access-failures",
+      "title": "Improve the backend-unavailable error banner guidance so it mentions both the icp0.io canister URL format and the custom domain ommistream.net as valid access paths, and provides a clear English hint that a misconfigured custom domain can cause access failures.",
+      "reqIds": [
+        "REQ-33"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -319,6 +361,34 @@
       "summary": "Update the repo-local mainnet deployment documentation to explicitly explain which deployed canister URL must be used for the public website, how to obtain it after deployment, and what a correct URL looks like (including hash-routing examples). Use English for all user-facing text.",
       "reqIds": [
         "REQ-25"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-27",
+      "summary": "Enforce a minimum Shorts duration of 3 seconds (prevent uploading/posting Shorts under 3s)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-28",
+      "summary": "Enforce a minimum duration of 3 seconds for media uploaded as Shorts so that Shorts with durationSeconds < 3 are rejected by the backend upload API.",
+      "reqIds": [
+        "REQ-27"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-29",
+      "summary": "Configure and document custom domain setup so OmniStream is reachable at ommistream.net (final public URL)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-31",
+      "summary": "Update the repo-local mainnet deployment documentation to include a dedicated section for configuring OmniStream to be reachable at the custom domain ommistream.net, including the exact steps a user must perform outside the repo (DNS) and inside the repo (deploying the .well-known/ic-domains asset). Use English for all user-facing text.",
+      "reqIds": [
+        "REQ-31"
       ],
       "status": "pending"
     }

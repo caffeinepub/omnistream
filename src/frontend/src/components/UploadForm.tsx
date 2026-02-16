@@ -16,6 +16,7 @@ interface UploadFormProps {
 }
 
 const ONE_DAY_SECONDS = 24 * 60 * 60;
+const MIN_SHORT_SECONDS = 3;
 
 export default function UploadForm({ onSuccess, initialMediaType }: UploadFormProps) {
   const [title, setTitle] = useState('');
@@ -65,6 +66,11 @@ export default function UploadForm({ onSuccess, initialMediaType }: UploadFormPr
       return;
     }
 
+    // Client-side validation for 3-second minimum for shorts
+    if (mediaType === 'short' && duration < MIN_SHORT_SECONDS) {
+      return;
+    }
+
     try {
       const result = await uploadMutation.mutateAsync({
         title: title.trim(),
@@ -81,7 +87,8 @@ export default function UploadForm({ onSuccess, initialMediaType }: UploadFormPr
 
   const isUploading = uploadMutation.isPending;
   const durationExceeded = duration !== null && duration > ONE_DAY_SECONDS;
-  const canSubmit = title.trim() && file && duration && !isUploading && !durationExceeded;
+  const shortTooShort = mediaType === 'short' && duration !== null && duration < MIN_SHORT_SECONDS;
+  const canSubmit = title.trim() && file && duration && !isUploading && !durationExceeded && !shortTooShort;
 
   return (
     <Card className="max-w-2xl mx-auto">
@@ -146,13 +153,18 @@ export default function UploadForm({ onSuccess, initialMediaType }: UploadFormPr
           </div>
 
           {duration !== null && (
-            <Alert variant={durationExceeded ? 'destructive' : 'default'}>
+            <Alert variant={durationExceeded || shortTooShort ? 'destructive' : 'default'}>
               <Clock className="h-4 w-4" />
               <AlertDescription>
                 Duration: <strong>{formatDuration(duration)}</strong>
                 {durationExceeded && (
                   <span className="block mt-1 font-semibold">
                     This video exceeds the 24-hour limit and cannot be uploaded.
+                  </span>
+                )}
+                {shortTooShort && (
+                  <span className="block mt-1 font-semibold">
+                    Shorts must be at least 3 seconds long.
                   </span>
                 )}
               </AlertDescription>
@@ -181,7 +193,13 @@ export default function UploadForm({ onSuccess, initialMediaType }: UploadFormPr
           )}
 
           <Button type="submit" disabled={!canSubmit} className="w-full">
-            {isUploading ? 'Uploading...' : durationExceeded ? 'Duration Exceeds Limit' : 'Upload'}
+            {isUploading 
+              ? 'Uploading...' 
+              : durationExceeded 
+              ? 'Duration Exceeds Limit' 
+              : shortTooShort
+              ? 'Short Too Short'
+              : 'Upload'}
           </Button>
         </form>
       </CardContent>

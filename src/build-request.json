@@ -1,104 +1,93 @@
 {
   "kind": "build_request",
-  "title": "Rebuild OmniStream and fix mainnet access + Watch-page Viewer Timer visibility",
+  "title": "Configure and document OmniStream custom domain (ommistream.net) on IC mainnet",
   "priority": "high",
   "requirements": [
     {
-      "id": "REQ-23",
-      "text": "Fix the Watch page so the Viewer Timer UI is clearly visible and usable for all users on common screen sizes (mobile + desktop), including when the Watch page is reached via deep links.",
+      "id": "REQ-30",
+      "text": "Add the Internet Computer custom-domain allowlist file to the frontend static assets so the deployed assets canister can serve OmniStream on the custom domain ommistream.net.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "recent-13",
-          "recent-11"
+          "msg-15"
         ],
         "quotes": [
-          "Build it again",
-          "Re code i can't see the timer thing"
+          "Make it ommistream.net"
         ]
       },
       "acceptanceCriteria": [
-        "Opening any existing media in the Watch page displays the Viewer Timer card without requiring scrolling on desktop layouts (unless the viewport is extremely small).",
-        "On mobile, the Viewer Timer is discoverable and not hidden behind other UI elements (e.g., it appears below the player/metadata or via a clearly labeled control).",
-        "The Viewer Timer can be started and stopped, and it counts down as expected.",
-        "When the timer reaches zero, the video pauses (existing behavior preserved)."
+        "A static file exists at frontend/public/.well-known/ic-domains (exact path, no extension).",
+        "The file content includes the domain \"ommistream.net\" on its own line.",
+        "The file content includes the domain \"www.ommistream.net\" on its own line.",
+        "After deploying the frontend assets canister to mainnet, fetching https://<FRONTEND_ASSETS_CANISTER_ID>.icp0.io/.well-known/ic-domains returns the expected domain list (via browser or curl)."
       ]
     },
     {
-      "id": "REQ-24",
-      "text": "Fix and harden the deployed-site access path so users do not encounter the gateway error “Canister ID Not Resolved” when opening the correct icp0.io URL for the deployed OmniStream frontend assets canister.",
-      "target": "both",
-      "source": {
-        "messageIds": [
-          "recent-8",
-          "recent-9"
-        ],
-        "quotes": [
-          "It says Canister ID Not Resolved",
-          "That's what I use https //xxxxx.icp0.io"
-        ]
-      },
-      "acceptanceCriteria": [
-        "A fresh mainnet deployment produces a working, publicly accessible HTTPS URL in the form https://<canister-id>.icp0.io that loads the OmniStream app.",
-        "The app loads successfully at the root URL (/) and does not require manual URL modifications to render the UI.",
-        "Deep links using the app’s hash routing (e.g., https://<canister-id>.icp0.io/#/watch/<title>) open the correct page directly without blank screens."
-      ]
-    },
-    {
-      "id": "REQ-25",
-      "text": "Update the repo-local mainnet deployment documentation to explicitly explain which deployed canister URL must be used for the public website, how to obtain it after deployment, and what a correct URL looks like (including hash-routing examples). Use English for all user-facing text.",
+      "id": "REQ-31",
+      "text": "Update the repo-local mainnet deployment documentation to include a dedicated section for configuring OmniStream to be reachable at the custom domain ommistream.net, including the exact steps a user must perform outside the repo (DNS) and inside the repo (deploying the .well-known/ic-domains asset). Use English for all user-facing text.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "recent-2",
-          "recent-8",
-          "recent-13"
+          "msg-15"
         ],
         "quotes": [
-          "Please paste the URL that appeared in the deploy message.",
-          "It says Canister ID Not Resolved",
-          "Build it again"
+          "Make it ommistream.net"
         ]
       },
       "acceptanceCriteria": [
-        "The deployment guide clearly instructs how to find the correct frontend assets canister URL after `dfx deploy --network ic`.",
-        "The guide includes at least one correct example URL format for the app root and one for a deep link using hash routing (e.g., `/#/watch/...`).",
-        "The guide includes a short troubleshooting note for the specific error text “Canister ID Not Resolved” with concrete checks (e.g., malformed URL, missing canister ID, wrong domain)."
+        "frontend/docs/ic-mainnet-deployment.md contains a clearly titled section for custom domain setup (ommistream.net).",
+        "The doc explains that the custom domain points to the frontend assets canister (not the backend canister).",
+        "The doc describes how to obtain the frontend assets canister ID after deployment and how to form the canister URL using icp0.io.",
+        "The doc includes explicit examples of correct hash-routing URLs (e.g., https://ommistream.net/#/ , https://ommistream.net/#/watch/<title>).",
+        "The doc includes explicit DNS instructions (record type and target) expressed without assuming a specific registrar UI, and indicates that DNS propagation can take time.",
+        "The doc explicitly states that this repo/code change cannot perform the real-world DNS update automatically."
       ]
     },
     {
-      "id": "REQ-26",
-      "text": "Add a user-facing error state in the frontend for when the app cannot reach the backend canister (or cannot create/use the actor), so the UI shows a clear English message describing that the service is temporarily unavailable instead of failing silently.",
+      "id": "REQ-32",
+      "text": "Update the frontend environment configuration example to include the recommended Internet Identity derivation origin setting for the custom domain ommistream.net.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "recent-7",
-          "recent-8",
-          "recent-13"
+          "msg-16"
         ],
         "quotes": [
-          "All those dont work",
-          "It says Canister ID Not Resolved",
-          "Build it again"
+          "Now do it know"
         ]
       },
       "acceptanceCriteria": [
-        "If the frontend cannot create/use the backend actor or a key query fails due to network/canister connectivity, the UI displays a clear error message in English (not just a console error).",
-        "The error state provides a minimal actionable hint (e.g., reload, verify the URL is the deployed icp0.io link) without exposing internal stack traces.",
-        "Normal behavior is unchanged when the backend is reachable."
+        "frontend/.env.example includes an uncommented or clearly documented example line showing II_DERIVATION_ORIGIN=https://ommistream.net (or an explicit instruction to set it to that value when using the custom domain).",
+        "The added/updated comments explain, in English, that II_DERIVATION_ORIGIN is relevant when using a custom domain so user principals remain consistent across domains."
+      ]
+    },
+    {
+      "id": "REQ-33",
+      "text": "Improve the backend-unavailable error banner guidance so it mentions both the icp0.io canister URL format and the custom domain ommistream.net as valid access paths, and provides a clear English hint that a misconfigured custom domain can cause access failures.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-15"
+        ],
+        "quotes": [
+          "Now deploy the url"
+        ]
+      },
+      "acceptanceCriteria": [
+        "frontend/src/components/BackendUnavailableBanner.tsx displays English guidance that includes both (1) the current icp0.io hostname when applicable and (2) a mention of https://ommistream.net as the intended custom domain.",
+        "If the current hostname is not an icp0.io domain, the banner text includes a clear suggestion to try the icp0.io canister URL as a fallback and to verify custom-domain configuration.",
+        "All user-facing text added/changed is in English."
       ]
     }
   ],
   "constraints": [
     "Backend must remain a single Motoko actor in backend/main.mo; do not introduce additional backend services.",
-    "Do not edit files under frontend/src/components/ui or any other frontend immutablePaths; compose them instead.",
-    "Use English for any user-facing text.",
-    "Keep hash-based routing compatibility for Internet Computer assets canister hosting (do not switch to server-dependent routing)."
+    "Do not edit any files under frontend/src/components/ui or any other paths listed as immutable (compose them instead).",
+    "Do not claim to have performed real-world DNS or registrar configuration; only implement repo changes and documentation."
   ],
   "nonGoals": [
-    "Implementing custom domain setup (DNS) changes for ommistream.com / www.ommistream.com without the exact deployed canister URL provided by the user.",
-    "Adding new product features beyond fixing visibility/accessibility issues and deployment accessibility.",
-    "Integrating third-party analytics, SEO tooling, or external hosting/CDNs."
+    "Actually buying the domain ommistream.net or configuring the registrar/DNS provider on the user’s behalf.",
+    "Issuing or managing TLS certificates outside what IC boundary nodes provide for supported custom domains.",
+    "Changing application features unrelated to custom-domain accessibility (feeds, uploads, watch UI, live sessions)."
   ],
   "imageRequirements": {
     "required": [],

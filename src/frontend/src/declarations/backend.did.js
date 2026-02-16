@@ -48,6 +48,7 @@ export const UserProfile = IDL.Record({ 'name' : IDL.Text });
 export const UploadError = IDL.Variant({
   'storageFailure' : IDL.Null,
   'durationExceeded' : IDL.Null,
+  'shortIsTooShort' : IDL.Null,
 });
 export const UploadResult = IDL.Variant({
   'error' : UploadError,
@@ -150,6 +151,7 @@ export const idlFactory = ({ IDL }) => {
   const UploadError = IDL.Variant({
     'storageFailure' : IDL.Null,
     'durationExceeded' : IDL.Null,
+    'shortIsTooShort' : IDL.Null,
   });
   const UploadResult = IDL.Variant({
     'error' : UploadError,
