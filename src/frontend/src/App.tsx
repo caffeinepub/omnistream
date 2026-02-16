@@ -9,6 +9,7 @@ import UploadPage from './pages/UploadPage';
 import WatchPage from './pages/WatchPage';
 import LivePage from './pages/LivePage';
 import LiveDetailsPage from './pages/LiveDetailsPage';
+import PollsPage from './pages/PollsPage';
 
 function Layout() {
   return (
@@ -58,6 +59,12 @@ const liveDetailsRoute = createRoute({
   component: LiveDetailsPage,
 });
 
+const pollsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/polls',
+  component: PollsPage,
+});
+
 const routeTree = rootRoute.addChildren([
   indexRoute,
   shortsRoute,
@@ -65,6 +72,7 @@ const routeTree = rootRoute.addChildren([
   watchRoute,
   liveRoute,
   liveDetailsRoute,
+  pollsRoute,
 ]);
 
 // Use hash-based routing for IC compatibility (no server-side routing support)

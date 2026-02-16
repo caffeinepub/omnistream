@@ -2,28 +2,8 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-remove-the-viewer-timer-feature-entirely-from-the-watch-page-ui-so-no-timer-controls-timer-sidebar-or-timer-related-text-are-shown-on-mobile-or-desktop",
-      "featureTitle": "Remove the Viewer Timer feature entirely from the Watch page UI so no timer controls, timer sidebar, or timer-related text are shown on mobile or desktop.",
-      "files": [
-        "frontend/src/pages/WatchPage.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "blob-storage@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-36"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-add-react-query-hooks-to-fetch-and-post-comments-via-the-backend-actor-and-ensure-caches-update-immediately-after-posting-invalidate-refetch-the-relevant-comments-query-for-that-media-title",
-      "featureTitle": "Add React Query hooks to fetch and post comments via the backend actor, and ensure caches update immediately after posting (invalidate/refetch the relevant comments query for that media title).",
+      "featureId": "feature-add-react-query-hooks-for-polls-fetch-all-polls-fetch-a-single-poll-create-a-poll-and-vote-on-a-poll-ensure-caches-update-immediately-after-create-vote-invalidate-refetch-the-relevant-queries",
+      "featureTitle": "Add React Query hooks for polls: fetch all polls, fetch a single poll, create a poll, and vote on a poll. Ensure caches update immediately after create/vote (invalidate/refetch the relevant queries).",
       "files": [
         "frontend/src/hooks/useQueries.ts"
       ],
@@ -37,16 +17,18 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-38"
+        "REQ-43"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-add-a-comments-section-under-the-media-on-the-watch-page-that-a-lists-existing-comments-and-b-allows-signed-in-users-to-post-a-new-comment-guests-can-read-comments-but-must-sign-in-to-post-show-an-english-sign-in-prompt-and-disable-hide-the-submit-action-for-guests",
-      "featureTitle": "Add a comments section under the media on the Watch page that (a) lists existing comments and (b) allows signed-in users to post a new comment. Guests can read comments but must sign in to post (show an English sign-in prompt and disable/hide the submit action for guests).",
+      "featureId": "feature-add-a-new-polls-page-to-the-app-with-1-a-list-of-existing-polls-newest-first-2-a-poll-creation-form-for-signed-in-users-question-2-options-with-add-remove-option-controls-and-3-a-poll-voting-ui-where-users-can-select-an-option-and-immediately-see-percentage-results-per-option-guests-can-browse-polls-but-must-sign-in-to-create-vote-show-an-english-prompt",
+      "featureTitle": "Add a new Polls page to the app with: (1) a list of existing polls (newest first), (2) a poll creation form for signed-in users (question + 2+ options with add/remove option controls), and (3) a poll voting UI where users can select an option and immediately see percentage results per option. Guests can browse polls but must sign in to create/vote (show an English prompt).",
       "files": [
-        "frontend/src/components/CommentsSection.tsx",
-        "frontend/src/pages/WatchPage.tsx"
+        "frontend/src/App.tsx",
+        "frontend/src/components/NavBar.tsx",
+        "frontend/src/components/PollCard.tsx",
+        "frontend/src/pages/PollsPage.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -58,7 +40,7 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-39"
+        "REQ-44"
       ],
       "confidence": "high"
     }

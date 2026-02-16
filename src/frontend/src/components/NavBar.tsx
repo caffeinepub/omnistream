@@ -1,5 +1,5 @@
 import { Link, useNavigate } from '@tanstack/react-router';
-import { Sparkles, Film, Upload, User, Radio } from 'lucide-react';
+import { Sparkles, Film, Upload, User, Radio, BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import AuthControls from './AuthControls';
@@ -40,6 +40,12 @@ export default function NavBar() {
                 <Link to="/live" className="gap-2">
                   <Radio className="h-4 w-4" />
                   Live
+                </Link>
+              </Button>
+              <Button variant="ghost" size="sm" asChild>
+                <Link to="/polls" className="gap-2">
+                  <BarChart3 className="h-4 w-4" />
+                  Polls
                 </Link>
               </Button>
               <Button variant="ghost" size="sm" asChild>

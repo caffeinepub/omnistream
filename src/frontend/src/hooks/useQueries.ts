@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useActor } from './useActor';
 import { ExternalBlob, MediaType, type PublicMediaMeta, type UserProfile, type PublicLiveSession, type Comment, type CommentInput } from '../backend';
+import type { Poll, PollId } from '../types/poll';
 
 export function useGetAllVideos() {
   const { actor, isFetching } = useActor();
@@ -280,6 +281,116 @@ export function useCreateComment() {
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['comments', variables.mediaTitle] });
+    },
+  });
+}
+
+// Poll hooks - These will work once the backend is updated
+export function useGetAllPolls() {
+  const { actor, isFetching } = useActor();
+
+  return useQuery<Poll[]>({
+    queryKey: ['polls'],
+    queryFn: async () => {
+      if (!actor) return [];
+      try {
+        // @ts-expect-error - Backend method not yet implemented
+        return await actor.getAllPolls();
+      } catch (error) {
+        console.error('Failed to fetch polls:', error);
+        return [];
+      }
+    },
+    enabled: !!actor && !isFetching,
+  });
+}
+
+export function useGetPoll(pollId: PollId) {
+  const { actor, isFetching } = useActor();
+
+  return useQuery<Poll>({
+    queryKey: ['poll', pollId],
+    queryFn: async () => {
+      if (!actor) throw new Error('Unable to load poll. Please check your connection.');
+      // @ts-expect-error - Backend method not yet implemented
+      return actor.getPoll(pollId);
+    },
+    enabled: !!actor && !isFetching && !!pollId,
+  });
+}
+
+interface CreatePollParams {
+  question: string;
+  options: string[];
+}
+
+export function useCreatePoll() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ question, options }: CreatePollParams) => {
+      if (!actor) {
+        throw new Error('You must be signed in to create a poll. Please sign in and try again.');
+      }
+      
+      if (options.length < 2) {
+        throw new Error('A poll must have at least 2 options.');
+      }
+
+      try {
+        // @ts-expect-error - Backend method not yet implemented
+        const pollId = await actor.createPoll(question, options);
+        return pollId;
+      } catch (error) {
+        if (error instanceof Error) {
+          if (error.message.includes('Unauthorized')) {
+            throw new Error('You must be signed in to create a poll.');
+          }
+          throw new Error(`Failed to create poll: ${error.message}`);
+        }
+        throw new Error('Failed to create poll. Please try again.');
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['polls'] });
+    },
+  });
+}
+
+interface VotePollParams {
+  pollId: PollId;
+  optionIndex: number;
+}
+
+export function useVotePoll() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ pollId, optionIndex }: VotePollParams) => {
+      if (!actor) {
+        throw new Error('You must be signed in to vote. Please sign in and try again.');
+      }
+
+      try {
+        // @ts-expect-error - Backend method not yet implemented
+        await actor.votePoll(pollId, BigInt(optionIndex));
+      } catch (error) {
+        if (error instanceof Error) {
+          if (error.message.includes('Unauthorized')) {
+            throw new Error('You must be signed in to vote.');
+          }
+          throw new Error(`Failed to vote: ${error.message}`);
+        }
+        throw new Error('Failed to vote. Please try again.');
+      }
+    },
+    onSuccess: (_, variables) => {
+      // Update the specific poll cache
+      queryClient.invalidateQueries({ queryKey: ['poll', variables.pollId] });
+      // Update the polls list cache
+      queryClient.invalidateQueries({ queryKey: ['polls'] });
     },
   });
 }

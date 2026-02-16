@@ -1,12 +1,13 @@
 # Specification
 
 ## Summary
-**Goal:** Add a Watch-page comments feature (read for everyone, post for signed-in users) and completely remove the Viewer Timer from the Watch page.
+**Goal:** Add a Polls feature where users can create polls, vote (one vote per user per poll, changeable), and view percentage results.
 
 **Planned changes:**
-- Remove the Viewer Timer UI and any timer-related logic/wiring from the Watch page on both mobile and desktop.
-- Add backend storage and APIs to create and fetch comments per media item (keyed by Watch-page media title), storing text, author principal, and createdAt, and returning newest-first.
-- Add React Query hooks to fetch/post comments via the backend actor, keyed by media title, with cache invalidation/refetch after posting and clear error messaging if the actor is unavailable.
-- Add a Watch-page “Comments” section under the media that lists comments (with empty state), shows a posting form for signed-in users, and shows a sign-in prompt / disables posting for guests.
+- Add backend poll storage and data model (question, 2+ options, vote counts, createdAt, creator principal) plus per-user vote tracking to enforce one vote per principal with vote changes supported.
+- Add backend APIs: createPoll, getPoll, getAllPolls (newest first), and votePoll; restrict create/vote to authenticated users while allowing all users to read.
+- Add safe backend upgrade migration to initialize poll state without losing existing canister data.
+- Add React Query hooks for listing polls, fetching a poll, creating a poll, and voting; ensure cache invalidation/refetch after create/vote with clear English error messages.
+- Add a Polls page/route linked from main navigation: polls list (newest first), creation form for signed-in users (question + dynamic 2+ options), and voting UI that displays per-option percentage results; guests can browse but are prompted to sign in to create/vote.
 
-**User-visible outcome:** The Watch page no longer shows any Viewer Timer elements, and users can read comments under each media item; signed-in users can post a comment and see it appear immediately, while guests are prompted to sign in to post.
+**User-visible outcome:** Users can browse polls and results; signed-in users can create new polls and vote (or change their vote) and immediately see updated percentage results.

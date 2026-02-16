@@ -61,6 +61,15 @@ export enum UserRole {
     user = "user",
     guest = "guest"
 }
+export type PollId = string;
+export interface Poll {
+    id: PollId;
+    question: string;
+    options: Array<string>;
+    optionVotes: Array<bigint>;
+    createdAt: Time;
+    creator: Principal;
+}
 export interface backendInterface {
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
     createComment(mediaId: string, commentInput: CommentInput): Promise<void>;
@@ -78,4 +87,8 @@ export interface backendInterface {
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     startLiveSession(title: string, description: string): Promise<void>;
     uploadMedia(title: string, mediaType: MediaType, durationSeconds: bigint, mediaData: ExternalBlob): Promise<UploadResult>;
+    createPoll(question: string, options: Array<string>): Promise<PollId>;
+    getPoll(pollId: PollId): Promise<Poll>;
+    getAllPolls(): Promise<Array<Poll>>;
+    votePoll(pollId: PollId, optionIndex: bigint): Promise<void>;
 }

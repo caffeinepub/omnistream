@@ -1,60 +1,60 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Watch page comments + remove Viewer Timer UI",
+  "title": "Add Polls UI with React Query hooks (create, vote, and percentage results)",
   "requirements": [
     {
-      "id": "REQ-36",
-      "summary": "Remove Viewer Timer UI and all timer-related wiring from the Watch page on mobile and desktop layouts.",
+      "id": "REQ-43",
+      "summary": "Add React Query hooks for polls (list, detail, create, vote) with immediate cache updates and clear English errors.",
       "acceptanceCriteria": [
-        "When viewing any media on the Watch page, there is no Viewer Timer card, no timer inputs/buttons, and no 'Viewer Timer' label anywhere in the rendered UI.",
-        "The Watch page still plays media normally and shows title/date/duration metadata without errors.",
-        "There is no timer-related logic executed from WatchPage (e.g., no onTimerEnd/pause callback wiring from a timer component)."
+        "There are React Query hooks that wrap the new backend poll APIs.",
+        "After creating a poll, the polls list updates without a manual reload.",
+        "After voting, the poll’s displayed vote counts/percentages update without a manual reload.",
+        "Errors are surfaced as clear English messages (e.g., not signed in)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/WatchPage.tsx",
+          "path": "frontend/src/backend.d.ts",
           "operation": "modify",
-          "description": "Remove the ViewerTimer import, timer callback logic (including any pause-on-timer-end wiring), and all timer JSX blocks for both mobile and desktop so no timer-related controls/text render anywhere."
-        }
-      ]
-    },
-    {
-      "id": "REQ-38",
-      "summary": "Add React Query hooks for fetching and posting comments keyed by media title, with cache invalidation and clear error handling.",
-      "acceptanceCriteria": [
-        "A Watch-page comments query is keyed by media title (e.g., ['comments', title]) and refetches when the title changes.",
-        "Posting a comment triggers an update so the new comment appears without requiring a manual page refresh.",
-        "If the backend actor is unavailable, the comments UI shows a clear English error message instead of failing silently."
-      ],
-      "file_operations": [
+          "description": "Extend the typed backend interface with poll-related types (Poll, PollId, etc.) and methods (createPoll, getPoll, getAllPolls, votePoll) so new React Query hooks can compile against the backend capabilities."
+        },
         {
           "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Add comment-related React Query hooks that call the backend actor methods to fetch comments and create a comment, using a query key of ['comments', mediaTitle] and invalidating/refetching that key on successful post; ensure actor-unavailable cases throw a clear English error message."
+          "description": "Add poll React Query hooks: useGetAllPolls, useGetPoll, useCreatePoll, useVotePoll. Ensure create/vote mutations update the cache by invalidating and/or updating ['polls'] and ['poll', pollId] query keys. Surface authorization and other failures as clear English Error messages. Use the selected 'authorization' component’s frontend guidance for authenticated vs guest behavior; verify the component's usage instructions before implementing."
         }
       ]
     },
     {
-      "id": "REQ-39",
-      "summary": "Add a Watch page Comments section to list comments and allow signed-in users to post, while guests can read only with a sign-in prompt.",
+      "id": "REQ-44",
+      "summary": "Add a Polls page with poll list (newest first), signed-in-only creation form (2+ options), and voting UI that shows percentage results; guests can browse and see an English sign-in prompt for create/vote.",
       "acceptanceCriteria": [
-        "The Watch page shows a 'Comments' section beneath the video player/metadata area.",
-        "If there are no comments, the UI displays an English empty state such as 'No comments yet. Be the first to comment.'",
-        "Signed-in users see a text input (textarea) and a 'Post comment' button; submitting posts the comment and clears the input on success.",
-        "Guests can see the comment list (and empty state), but cannot post; the UI shows an English message such as 'Sign in to post a comment.'",
-        "Posted comments render with their text and a readable timestamp; author display uses the commenter profile name when available, otherwise a safe fallback label in English."
+        "A Polls route/page exists and is reachable from the main navigation.",
+        "Guests can view the polls list and per-poll results UI but cannot vote or create; the UI shows an English sign-in prompt.",
+        "Signed-in users can create a poll (question + at least 2 options).",
+        "Signed-in users can vote on a poll; after voting, the UI shows percentages for each option (and handles 0 total votes gracefully).",
+        "The UI prevents creating polls with fewer than 2 non-empty options and prevents voting without selecting an option, with clear English feedback."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/CommentsSection.tsx",
+          "path": "frontend/src/pages/PollsPage.tsx",
           "operation": "create",
-          "description": "Create a CommentsSection component that uses the new comment React Query hooks to render: a 'Comments' heading, loading/error states (English), an empty state message, and a newest-first list with readable timestamps; use the authorization component’s frontend guidance (Internet Identity state + user profile) to detect guests vs signed-in users and to show an English sign-in prompt while disabling/hiding the submit action for guests. Verify the component's usage instructions before implementing."
+          "description": "Create the Polls page that composes existing shadcn/ui components (e.g., Card, Button, Input, Label, Alert) to render: (1) polls list (newest first via useGetAllPolls), (2) a create-poll form gated to authenticated users, and (3) per-poll voting UI with computed percentages and graceful 0-vote handling. Use the selected 'shadcn-ui' component library for consistent UI composition; verify the component's usage instructions before implementing. Use the selected 'authorization' component’s frontend guidance (Internet Identity state) to show guest prompts and disable create/vote when unauthenticated; verify the component's usage instructions before implementing."
         },
         {
-          "path": "frontend/src/pages/WatchPage.tsx",
+          "path": "frontend/src/components/PollCard.tsx",
+          "operation": "create",
+          "description": "Add a reusable PollCard component used by PollsPage to display a single poll: question, options, current totals/percentages, and voting controls. Implement local selection state, validation (must select an option before voting), and call useVotePoll; ensure the UI updates immediately via React Query cache updates. Use the selected 'shadcn-ui' components for layout and feedback; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/App.tsx",
           "operation": "modify",
-          "description": "Render the new CommentsSection beneath the video player/metadata area and pass the current media title as the comments key; ensure the section remains visible to guests for read-only access. Verify the component's usage instructions before implementing."
+          "description": "Register the new /polls route in the TanStack Router route tree and wire it to PollsPage so it is navigable."
+        },
+        {
+          "path": "frontend/src/components/NavBar.tsx",
+          "operation": "modify",
+          "description": "Add a main navigation link to /polls (with an appropriate icon) so the Polls page is reachable from the primary app navigation. Use existing shadcn/ui Button-asChild Link pattern; verify the component's usage instructions before implementing."
         }
       ]
     }

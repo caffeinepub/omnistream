@@ -1,93 +1,118 @@
 {
   "kind": "build_request",
-  "title": "Add Watch-page comments and remove Viewer Timer completely",
+  "title": "Add Polls (create, vote, and percentage results)",
   "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-36",
-      "text": "Remove the Viewer Timer feature entirely from the Watch page UI so no timer controls, timer sidebar, or timer-related text are shown on mobile or desktop.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-recent-12"
-        ],
-        "quotes": [
-          "So add comments and what i said earlier but no timer"
-        ]
-      },
-      "acceptanceCriteria": [
-        "When viewing any media on the Watch page, there is no Viewer Timer card, no timer inputs/buttons, and no 'Viewer Timer' label anywhere in the rendered UI.",
-        "The Watch page still plays media normally and shows title/date/duration metadata without errors.",
-        "There is no timer-related logic executed from WatchPage (e.g., no onTimerEnd/pause callback wiring from a timer component)."
-      ]
-    },
-    {
-      "id": "REQ-37",
-      "text": "Implement backend comment storage and APIs so comments can be created and fetched per media item (keyed by the Watch page media title). Include comment text, author principal, and createdAt timestamp in the stored record, and return comments in reverse-chronological order (newest first).",
+      "id": "REQ-40",
+      "text": "Implement backend data models and stable storage for Polls, including: a poll question, a list of 2+ option labels, per-option vote counts, createdAt timestamp, and creator principal. Each authenticated principal can cast at most one vote per poll (changing vote should be supported by replacing their previous vote).",
       "target": "backend",
       "source": {
         "messageIds": [
-          "msg-recent-12"
+          "msg-4"
         ],
         "quotes": [
-          "So add comments and what i said earlier but no timer"
+          "Make polls were you ask questions and put this or this and it shows what percentage of ppl like who"
         ]
       },
       "acceptanceCriteria": [
-        "Backend exposes a query method to fetch comments for a given media title and returns an empty list when there are no comments.",
-        "Backend exposes an authenticated method to add a comment for a given media title; unauthenticated callers are rejected consistently with existing access-control behavior.",
-        "Each returned comment includes: text, author (Principal), and createdAt (Time).",
-        "Fetching comments returns newest-first ordering."
+        "A poll record stores: question text, options (2+), createdAt, creator principal, and vote counts.",
+        "Voting is restricted to authenticated users; unauthenticated callers are rejected with a clear error (trap is acceptable if consistent with existing access control).",
+        "A principal can vote only once per poll; a subsequent vote updates their previous choice rather than incrementing totals twice.",
+        "Percentages can be derived reliably from stored totals (0-vote polls do not error)."
       ]
     },
     {
-      "id": "REQ-38",
-      "text": "Add React Query hooks to fetch and post comments via the backend actor, and ensure caches update immediately after posting (invalidate/refetch the relevant comments query for that media title).",
-      "target": "frontend",
+      "id": "REQ-41",
+      "text": "Add backend canister APIs for polls: createPoll(question, options) -> pollId (or poll object), getPoll(pollId), getAllPolls (newest first), and votePoll(pollId, optionIndex). Ensure APIs follow the existing single-actor access-control pattern (only signed-in users can create/vote; all users can read).",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-recent-12"
+          "msg-4",
+          "msg-6"
         ],
         "quotes": [
-          "So add comments and what i said earlier but no timer"
+          "Make polls were you ask questions and put this or this and it shows what percentage of ppl like who",
+          "Code it"
         ]
       },
       "acceptanceCriteria": [
-        "A Watch-page comments query is keyed by media title (e.g., ['comments', title]) and refetches when the title changes.",
-        "Posting a comment triggers an update so the new comment appears without requiring a manual page refresh.",
-        "If the backend actor is unavailable, the comments UI shows a clear English error message instead of failing silently."
+        "Authenticated users can create a poll with 2+ options and then retrieve it via getPoll and getAllPolls.",
+        "Guests can call getPoll/getAllPolls successfully.",
+        "votePoll updates the poll totals and per-user vote tracking as specified in REQ-40.",
+        "getAllPolls returns polls in reverse-chronological order (newest first)."
       ]
     },
     {
-      "id": "REQ-39",
-      "text": "Add a comments section under the media on the Watch page that (a) lists existing comments and (b) allows signed-in users to post a new comment. Guests can read comments but must sign in to post (show an English sign-in prompt and disable/hide the submit action for guests).",
-      "target": "frontend",
+      "id": "REQ-42",
+      "text": "Add/extend backend upgrade migration so existing canister state upgrades safely when introducing poll storage (initialize an empty poll store and any per-user vote index needed) without losing existing media/live/comment/profile data.",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-recent-12"
+          "msg-6"
         ],
         "quotes": [
-          "So add comments and what i said earlier but no timer"
+          "Code it"
         ]
       },
       "acceptanceCriteria": [
-        "The Watch page shows a 'Comments' section beneath the video player/metadata area.",
-        "If there are no comments, the UI displays an English empty state such as 'No comments yet. Be the first to comment.'",
-        "Signed-in users see a text input (textarea) and a 'Post comment' button; submitting posts the comment and clears the input on success.",
-        "Guests can see the comment list (and empty state), but cannot post; the UI shows an English message such as 'Sign in to post a comment.'",
-        "Posted comments render with their text and a readable timestamp; author display uses the commenter profile name when available, otherwise a safe fallback label in English."
+        "On upgrade, the canister preserves existing media, live sessions, user profiles, and comments.",
+        "On upgrade, polls storage is initialized to empty when no prior polls exist.",
+        "Deployment does not fail due to missing fields in upgraded state."
+      ]
+    },
+    {
+      "id": "REQ-43",
+      "text": "Add React Query hooks for polls: fetch all polls, fetch a single poll, create a poll, and vote on a poll. Ensure caches update immediately after create/vote (invalidate/refetch the relevant queries).",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4",
+          "msg-6"
+        ],
+        "quotes": [
+          "Make polls were you ask questions and put this or this and it shows what percentage of ppl like who",
+          "Code it"
+        ]
+      },
+      "acceptanceCriteria": [
+        "There are React Query hooks that wrap the new backend poll APIs.",
+        "After creating a poll, the polls list updates without a manual reload.",
+        "After voting, the poll’s displayed vote counts/percentages update without a manual reload.",
+        "Errors are surfaced as clear English messages (e.g., not signed in)."
+      ]
+    },
+    {
+      "id": "REQ-44",
+      "text": "Add a new Polls page to the app with: (1) a list of existing polls (newest first), (2) a poll creation form for signed-in users (question + 2+ options with add/remove option controls), and (3) a poll voting UI where users can select an option and immediately see percentage results per option. Guests can browse polls but must sign in to create/vote (show an English prompt).",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "Make polls were you ask questions and put this or this and it shows what percentage of ppl like who"
+        ]
+      },
+      "acceptanceCriteria": [
+        "A Polls route/page exists and is reachable from the main navigation.",
+        "Guests can view the polls list and per-poll results UI but cannot vote or create; the UI shows an English sign-in prompt.",
+        "Signed-in users can create a poll (question + at least 2 options).",
+        "Signed-in users can vote on a poll; after voting, the UI shows percentages for each option (and handles 0 total votes gracefully).",
+        "The UI prevents creating polls with fewer than 2 non-empty options and prevents voting without selecting an option, with clear English feedback."
       ]
     }
   ],
   "constraints": [
-    "Backend must remain a single Motoko actor in backend/main.mo; do not introduce additional backend services.",
-    "Do not edit files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or frontend/src/components/ui; compose existing components instead.",
-    "Use English for all user-facing UI text related to comments and any error/empty states."
+    "Backend must remain a single Motoko actor in backend/main.mo; no additional backend services.",
+    "Do not edit files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or frontend/src/components/ui; compose existing UI components instead.",
+    "Use English for all user-facing text."
   ],
   "nonGoals": [
-    "Threaded replies, @mentions, comment likes/reactions, or moderation tooling.",
-    "Editing or deleting comments.",
-    "Real-time comments (no WebSockets); standard fetch/refetch behavior via React Query only."
+    "Adding real-time updates (no WebSockets).",
+    "Adding poll comments, poll sharing, or moderation tooling.",
+    "Adding third-party authentication beyond Internet Identity.",
+    "Associating polls to specific videos/shorts unless explicitly requested later."
   ],
   "imageRequirements": {
     "required": [],

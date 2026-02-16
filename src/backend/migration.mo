@@ -1,58 +1,46 @@
 import Map "mo:core/Map";
-import Array "mo:core/Array";
-import Text "mo:core/Text";
+import Nat "mo:core/Nat";
 import Principal "mo:core/Principal";
-import Storage "blob-storage/Storage";
-import Time "mo:core/Time";
+import ExternalBlob "blob-storage/Storage";
 
 module {
-  type OldActor = {
-    mediaStorage : Map.Map<Text, {
-      title : Text;
-      mediaType : { #short; #video };
-      createdAt : Time.Time;
-      durationSeconds : Nat;
-      mediaData : Storage.ExternalBlob;
-    }>;
-    liveSessions : Map.Map<Text, {
-      title : Text;
-      description : Text;
-      startTime : Time.Time;
-      isActive : Bool;
-      streamer : Principal;
-    }>;
-    userProfiles : Map.Map<Principal, { name : Text }>;
+  public type MediaMeta = {
+    title : Text;
+    mediaType : {
+      #short;
+      #video;
+    };
+    createdAt : Int;
+    durationSeconds : Nat;
+    mediaData : ExternalBlob.ExternalBlob;
   };
 
-  type NewActor = {
-    mediaStorage : Map.Map<Text, {
-      title : Text;
-      mediaType : { #short; #video };
-      createdAt : Time.Time;
-      durationSeconds : Nat;
-      mediaData : Storage.ExternalBlob;
-    }>;
-    liveSessions : Map.Map<Text, {
-      title : Text;
-      description : Text;
-      startTime : Time.Time;
-      isActive : Bool;
-      streamer : Principal;
-    }>;
-    commentStore : Map.Map<Text, [ {
-      author : Principal;
-      text : Text;
-      createdAt : Int;
-    } ]>;
-    userProfiles : Map.Map<Principal, { name : Text }>;
+  public type LiveSession = {
+    title : Text;
+    description : Text;
+    startTime : Int;
+    isActive : Bool;
+    streamer : Principal;
   };
 
-  public func run(old : OldActor) : NewActor {
-    let newCommentStore = Map.empty<Text, [ {
-      author : Principal;
-      text : Text;
-      createdAt : Int;
-    } ]>();
-    { old with commentStore = newCommentStore };
+  public type UserProfile = {
+    name : Text;
+  };
+
+  public type Comment = {
+    author : Principal;
+    text : Text;
+    createdAt : Int;
+  };
+
+  public type OldActor = {
+    mediaStorage : Map.Map<Text, MediaMeta>;
+    liveSessions : Map.Map<Text, LiveSession>;
+    userProfiles : Map.Map<Principal, UserProfile>;
+    commentStore : Map.Map<Text, [Comment]>;
+  };
+
+  public func run(old : OldActor) : OldActor {
+    old;
   };
 };

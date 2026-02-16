@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 23,
+  "projectStateVersion": 25,
   "summary": "Build OmniStream, a YouTube-like video sharing website supporting user-uploaded long videos and shorts, starting empty, with a logo splash/loading screen (including founder/co-founder text), 24-hour max video length, and an optional viewer timer that can pause playback. Add a signed-in-only floating + action button for Upload/Short/Go Live, a simpler clock-style timer setter, a Shorts-specific logo/branding element, and require live streaming delay no longer than 5 seconds. Deploy the website so it is publicly accessible (go live), and configure a custom domain so the final public URL is ommistream.net. Add a comments section under every video on the Watch page, and remove the viewer timer feature entirely.",
   "architectural_notes": [
     "Guest mode supported: browsing allowed while unauthenticated; uploading/posting requires sign-in.",
@@ -282,6 +282,22 @@
         "REQ-39"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-add-react-query-hooks-for-polls-fetch-all-polls-fetch-a-single-poll-create-a-poll-and-vote-on-a-poll-ensure-caches-update-immediately-after-create-vote-invalidate-refetch-the-relevant-queries",
+      "title": "Add React Query hooks for polls: fetch all polls, fetch a single poll, create a poll, and vote on a poll. Ensure caches update immediately after create/vote (invalidate/refetch the relevant queries).",
+      "reqIds": [
+        "REQ-43"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-new-polls-page-to-the-app-with-1-a-list-of-existing-polls-newest-first-2-a-poll-creation-form-for-signed-in-users-question-2-options-with-add-remove-option-controls-and-3-a-poll-voting-ui-where-users-can-select-an-option-and-immediately-see-percentage-results-per-option-guests-can-browse-polls-but-must-sign-in-to-create-vote-show-an-english-prompt",
+      "title": "Add a new Polls page to the app with: (1) a list of existing polls (newest first), (2) a poll creation form for signed-in users (question + 2+ options with add/remove option controls), and (3) a poll voting UI where users can select an option and immediately see percentage results per option. Guests can browse polls but must sign in to create/vote (show an English prompt).",
+      "reqIds": [
+        "REQ-44"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -446,6 +462,36 @@
       "summary": "Implement backend comment storage and APIs so comments can be created and fetched per media item (keyed by the Watch page media title). Include comment text, author principal, and createdAt timestamp in the stored record, and return comments in reverse-chronological order (newest first).",
       "reqIds": [
         "REQ-37"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-40",
+      "summary": "Add polls to OmniStream: allow users to create a poll question with multiple choice options (e.g., \"this or this\"), let users vote, and display percentage results for each option.",
+      "reqIds": [],
+      "status": "in_progress"
+    },
+    {
+      "id": "AR-41",
+      "summary": "Implement backend data models and stable storage for Polls, including: a poll question, a list of 2+ option labels, per-option vote counts, createdAt timestamp, and creator principal. Each authenticated principal can cast at most one vote per poll (changing vote should be supported by replacing their previous vote).",
+      "reqIds": [
+        "REQ-40"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-42",
+      "summary": "Add backend canister APIs for polls: createPoll(question, options) -> pollId (or poll object), getPoll(pollId), getAllPolls (newest first), and votePoll(pollId, optionIndex). Ensure APIs follow the existing single-actor access-control pattern (only signed-in users can create/vote; all users can read).",
+      "reqIds": [
+        "REQ-41"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-43",
+      "summary": "Add/extend backend upgrade migration so existing canister state upgrades safely when introducing poll storage (initialize an empty poll store and any per-user vote index needed) without losing existing media/live/comment/profile data.",
+      "reqIds": [
+        "REQ-42"
       ],
       "status": "pending"
     }
